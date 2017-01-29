@@ -8,7 +8,7 @@ Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 
 Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-Script requires: **bash, coreutils, sed, grep, curl / wget, tar / unzip
+Script requires: **bash, coreutils, sed, grep, curl / wget, tar / unzip**
 
 **Usage**:
 
@@ -38,11 +38,11 @@ bash getcaddy.sh git,mailout
 When the feature list starts with a comma, the features are added to the
 existing binary's current features. A sole comma means: keep the same features.
 
-If no features wanted, specify 'none' as the feature list.
-A forced install location (*path + filename*) can be given as a second argument:
+A forced install location (*path + filename*) can be given as a second argument.
+If no features are wanted, HTTP can be specified as the feature list.
 
 ```bash
-bash getcaddy.sh none /root/caddyserver
+bash getcaddy.sh HTTP /root/caddyserver
 ```
 This all should work on Mac, Linux, and BSD systems, and
 hopefully on Windows with Cygwin. Please open an issue if you notice any bugs.
