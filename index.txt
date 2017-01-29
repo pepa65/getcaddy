@@ -4,7 +4,7 @@
 #
 #   Homepage: https://caddyserver.com
 #   Issues:   https://github.com/caddyserver/getcaddy.com/issues
-#   Requires: bash, coreutils, sed, grep, curl or wget, tar or unzip
+#   Requires: bash, coreutils, sed, grep, curl / wget, tar / unzip
 #
 # Bash script to install the single-binary Caddy web server. Use it like this:
 #
@@ -146,6 +146,7 @@ install_caddy()
 		if [[ -x $caddy_path ]]; then  # read plugins from binary if present
 			plugins=$("$caddy_path" -plugins |grep ' http\.' |sed 's/^.*http\.//')
 			# only add valid features in the plugins list
+			shopt -s nullglob
 			for plugin in ${plugins[@]}; do
 				[[ $valid_features = *,$plugin,* ]] && features+=",$plugin"
 			done
@@ -210,7 +211,7 @@ install_caddy()
 		$sudo_cmd cp -v --backup=numbered "$caddy_path" "$caddy_backup"
 	fi
 
-	[[ $pid ]] && echo "Stopping caddy" && kill -SIGINT $pid
+	[[ $pid ]] && echo "Stopping caddy" && kill -INT $pid && true
 	echo "Putting caddy in $caddy_path (may require password)"
 	$sudo_cmd mv "$tmp/$caddy_bin" "$caddy_path"
 	if setcap_cmd=$(type -p setcap); then
