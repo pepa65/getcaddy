@@ -30,10 +30,10 @@
 # When the feature list starts with a comma, the features are added to the
 # existing binary's current features. A sole comma means: keep the same features.
 #
-# If no features wanted, specify 'none' as the feature list.
 # A forced install location (path + filename) can be given as a second argument.
+# If no features are wanted, 'HTTP' can be specified as the feature list.
 #
-#   $ bash getcaddy.sh none /root/caddyserver
+#   $ bash getcaddy.sh HTTP /root/caddyserver
 #
 # This should all work on Mac, Linux, and BSD systems, and
 # hopefully Windows with Cygwin. Please open an issue if you notice any bugs.
@@ -116,24 +116,19 @@ install_caddy()
 	fi
 
 	# determine install location, caddy_path is the full path
-	pid=$(pgrep -nx "$caddy_bin" || true)  # most recent match if running
 	if [[ $2 ]]; then  # if specified: force that install location
 		caddy_path="$2"
 		[[ ${caddy_path:0:1} = / ]] || caddy_path="./$caddy_path"
-	elif [[ $pid ]]; then  # if running: use location of the binary
-		bin=$(ls -l /proc/$pid/exe)
+	elif pid=$(pgrep -nx "$caddy_bin"); then  # most recent match if running
+		bin=$(ls -l /proc/$pid/exe)  # if running: use location of the binary
 		caddy_path=$(sed "s@^.* /proc/$pid/exe -> @@" <<<"$bin")
 	else
 		caddy_path=$(type -p "$caddy_bin" || true)  # use the first caddy binary in PATH
 	fi
 
 	# find the curl or wget binaries
-	if dl_cmd="$(type -p curl) -fsSL"; then  # no curl
-		if dl_cmd="$(type -p wget) -qO-"; then  # no wget
-			echo "Aborted, could not find curl or wget"
-			return 7
-		fi
-	fi
+	! dl_cmd="$(type -p curl) -fsSL" && !dl_cmd="$(type -p wget) -qO-" \
+			&& echo "Aborted, could not find curl or wget" && return 7
 
 	###################
 	# Which features? #
@@ -145,8 +140,6 @@ install_caddy()
 	valid_features=",$(sed 's/ /,/g' <<<$valid_features),"
 
 	features=$1
-	[[ $features = none ]] && features=""
-
 	# if features starts with comma: get the current plugins
 	if [[ ${features:0:1} = ',' ]]; then
 		# if no binary found, just install a new one with the listed features
