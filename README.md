@@ -2,15 +2,15 @@
 
 ## Caddy web server install/upgrade script
 
-### Bash script to install the single-binary Caddy web server
+#### Bash script to install the single-binary Caddy web server
 
-**Caddy home page**: [caddyserver.com](https://caddyserver.com)
+Caddy home page: [caddyserver.com](https://caddyserver.com)
 
-**Report issues**: [github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)
+Report issues: [github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)
 
-**Script requires: bash, coreutils, curl or wget, tar or unzip**
+Script requires: bash, coreutils, curl *or* wget, tar *or* unzip
 
-Usage:
+**Usage**:
 
 ```bash
 curl https://loof.bid/getcaddy |bash
