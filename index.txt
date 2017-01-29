@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
 #
-#                  Caddy Installer Script
+#   Caddy Installer and Upgrade Script
 #
 #   Homepage: https://caddyserver.com
 #   Issues:   https://github.com/caddyserver/getcaddy.com/issues
-#   Requires: bash, coreutils, curl or wget, tar or unzip
+#   Requires: bash, coreutils, sed, grep, curl or wget, tar or unzip
 #
-# Hello! This is an experimental script that installs Caddy
-# into your PATH (which may require password authorization).
-# Use it like this:
+# Bash script to install the single-binary Caddy web server. Use it like this:
 #
-#	$ curl https://getcaddy.com | bash
-#	 or
-#	$ wget -qO- https://getcaddy.com | bash
+#   $ curl https://getcaddy.com |bash
+#	or
+#	  $ wget -qO- https://getcaddy.com |bash
 #
 # In automated environments, you may want to run as root.
 # If using curl, we recommend using the -fsSL flags.
@@ -20,31 +18,22 @@
 # If you want to get Caddy with extra features, use -s with a
 # comma-separated list of directives, like this:
 #
-#	$ curl https://getcaddy.com | bash -s git,mailout
+#	  $ curl https://getcaddy.com |bash -s git,mailout
 #
 # Or it can be first downloaded and then run:
 #
-#	$ wget getcaddy.com -O getcaddy.sh
-#	$ bash getcaddy.sh git,mailout
+#   $ wget getcaddy.com -O getcaddy.sh
+#   $ bash getcaddy.sh git,mailout
 #
-# The full list of available features is:
-#  DNS,awslambda,cors,expires,filemanager,filter,git,hugo,ipfilter,jsonp,jwt,
-#  locale,mailout,minify,multipass,prometheus,ratelimit,realip,search,upload,
-#  cloudflare,digitalocean,dnsimple,dyn,gandi,googlecloud,linode,namecheap,ovh,
-#  rfc2136,route53,vultr
-# (see https://caddyserver.com/download)
+# See https://caddyserver.com/download for the full list of available features.
 #
-# When the feature list starts with a comma, the plugins listed after are
-# added to the existing binary's present http features. A sole comma means
-# keep the same feature set.
+# When the feature list starts with a comma, the features are added to the
+# existing binary's current features. A sole comma means: keep the same features.
 #
-#	$ wget -qO- getcaddy.com | bash -s ,hugo
+# If no features wanted, specify 'none' as the feature list.
+# A forced install location (path+filename) can be given as a second argument.
 #
-# It is also valid to just specify 'none' for no plugins.
-#
-# A forced install location (path+filename) can be given as a second argument:
-#
-#	$ bash getcaddy.sh none /root/caddyserver
+#   $ bash getcaddy.sh none /root/caddyserver
 #
 # This should work on Mac, Linux, and BSD systems, and
 # hopefully Windows with Cygwin. Please open an issue if you notice any bugs.
@@ -138,13 +127,26 @@ install_caddy()
 		caddy_path=$(type -p "$caddy_bin" || true)  # use the first caddy binary in PATH
 	fi
 
+	# find the curl or wget binaries
+	if dl_cmd="$(type -p curl || true) -fsSL"; then  # no curl
+		if dl_cmd="$( type -p wget || true) -qO-"; then  # no wget
+			echo "Aborted, could not find curl or wget"
+			return 8
+		fi
+	fi
+
 	###################
 	# Which features? #
 	###################
 
+	# determine valid features
+	valid_features=$($dl_cmd caddyserver.com/features.json \
+			|sed 's/},/\0\n/g' |grep -o '^.*","name":"[^"]*' |grep -o '[^"]*$')
+	valid_features=",$(sed 's/ /,/g' <<<$valid_features),"
+
 	features=$1
 	[[ $features = none ]] && features=""
-	valid_features=",DNS,awslambda,cors,expires,filemanager,filter,git,hugo,ipfilter,jsonp,jwt,locale,mailout,minify,multipass,prometheus,ratelimit,realip,search,upload,cloudflare,digitalocean,dnsimple,dyn,gandi,googlecloud,linode,namecheap,ovh,rfc2136,route53,vultr,"
+
 	# if features starts with comma: get the current plugins
 	if [[ ${features:0:1} = ',' ]]; then
 		# if no binary found, just install a new one with the listed features
@@ -189,28 +191,16 @@ install_caddy()
 	########################
 
 	echo "Downloading Caddy for $caddy_os/$caddy_arch..."
-	caddy_dl="caddy_${caddy_os}_$caddy_arch${caddy_arm}_custom$caddy_dl_ext"
+	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
+	caddy_dl="$tmp/caddy_${caddy_os}_$caddy_arch${caddy_arm}_custom$caddy_dl_ext"
 	caddy_url="https://caddyserver.com/download/build?os=$caddy_os&arch=$caddy_arch&arm=$caddy_arm&features=$caddy_features"
 	echo "$caddy_url"
-
-	# Use $PREFIX for compatibility with Termux on Android
-	tmp="$PREFIX/tmp"
-	# Make room for the download of the package
-	rm -rf "$tmp/$caddy_dl"
-
-	if type -p curl &>/dev/null; then
-		curl -fsSL "$caddy_url" -o "$tmp/$caddy_dl"
-	elif type -p wget &>/dev/null; then
-		wget --quiet "$caddy_url" -O "$tmp/$caddy_dl"
-	else
-		echo "Aborted, could not find curl or wget"
-		return 8
-	fi
+	$dl_cmd "$caddy_url" >"$caddy_dl"
 
 	echo "Extracting..."
 	case "$caddy_dl" in
-		*.zip)    unzip -o "$tmp/$caddy_dl" "$caddy_bin" -d "$tmp/" ;;
-		*.tar.gz) tar -xzf "$tmp/$caddy_dl" -C "$tmp/" "$caddy_bin" ;;
+		*.zip)    unzip -o "$caddy_dl" "$caddy_bin" -d "$tmp/" ;;
+		*.tar.gz) tar -xzf "$caddy_dl" -C "$tmp/" "$caddy_bin" ;;
 	esac
 	chmod +x "$tmp/$caddy_bin"
 
@@ -234,7 +224,7 @@ install_caddy()
 		$sudo_cmd "$setcap_cmd" cap_net_bind_service=+ep "$caddy_path"
 	fi
 	[[ $pid ]] && echo "Restarting caddy" && "$caddy_path"
-	$sudo_cmd rm -- "$tmp/$caddy_dl"
+	$sudo_cmd rm -- "$caddy_dl"
 
 	# check installation
 	echo "Version: $("$caddy_path" --version)"
