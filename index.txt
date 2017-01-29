@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#   Caddy Installer and Upgrade Script
+#   Caddy web server installer and upgrade script
 #
 #   Homepage: https://caddyserver.com
 #   Issues:   https://github.com/caddyserver/getcaddy.com/issues
@@ -31,11 +31,11 @@
 # existing binary's current features. A sole comma means: keep the same features.
 #
 # If no features wanted, specify 'none' as the feature list.
-# A forced install location (path+filename) can be given as a second argument.
+# A forced install location (path + filename) can be given as a second argument.
 #
 #   $ bash getcaddy.sh none /root/caddyserver
 #
-# This should work on Mac, Linux, and BSD systems, and
+# This should all work on Mac, Linux, and BSD systems, and
 # hopefully Windows with Cygwin. Please open an issue if you notice any bugs.
 #
 
@@ -128,10 +128,10 @@ install_caddy()
 	fi
 
 	# find the curl or wget binaries
-	if dl_cmd="$(type -p curl || true) -fsSL"; then  # no curl
-		if dl_cmd="$( type -p wget || true) -qO-"; then  # no wget
+	if dl_cmd="$(type -p curl && true) -fsSL"; then  # no curl
+		if dl_cmd="$( type -p wget && true) -qO-"; then  # no wget
 			echo "Aborted, could not find curl or wget"
-			return 8
+			return 7
 		fi
 	fi
 
@@ -164,7 +164,7 @@ install_caddy()
 	for feature in "${featurelist[@]}"; do
 		if [[ $valid_features != *,$feature,* ]]; then
 			echo "Aborted, feature '$feature' not valid"
-			return 7
+			return 8
 		fi
 	done
 	# remove extraneous commas
