@@ -128,8 +128,8 @@ install_caddy()
 	fi
 
 	# find the curl or wget binaries
-	if dl_cmd="$(type -p curl && true) -fsSL"; then  # no curl
-		if dl_cmd="$( type -p wget && true) -qO-"; then  # no wget
+	if dl_cmd="$(type -p curl) -fsSL"; then  # no curl
+		if dl_cmd="$(type -p wget) -qO-"; then  # no wget
 			echo "Aborted, could not find curl or wget"
 			return 7
 		fi
