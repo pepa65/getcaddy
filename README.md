@@ -4,17 +4,17 @@
 
 #### Bash script to install the single-binary Caddy web server
 
-Caddy home page: [caddyserver.com](https://caddyserver.com)
+Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 
-Report issues: [github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)
+Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-Script requires: bash, coreutils, curl *or* wget, tar *or* unzip
+Script requires: **bash**, **coreutils**, **curl** *or* **wget**, **tar** *or* **unzip**
 
 **Usage**:
 
 ```bash
 curl https://loof.bid/getcaddy |bash
-  # or
+  # or:
 wget -qO- loof.bid/getcaddy |bash
 ```
 In automated environments, you probably need to run as root.
@@ -55,7 +55,7 @@ source getcaddy.sh ,
 ```
 It is also valid to just specify `none` for no added features.
 
-A forced install location (path + filename) can be given as a second argument:
+A forced install location (*path + filename*) can be given as a second argument:
 
 ```bash
 bash getcaddy.sh none /root/caddyserver
