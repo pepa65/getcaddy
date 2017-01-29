@@ -1,14 +1,14 @@
 # getcaddy.com
 
-## Caddy web server install/upgrade script
+## Caddy web server installer and upgrade script
 
-#### Bash script to install the single-binary Caddy web server
+#### Bash script to install or upgrade the single-binary Caddy web server
 
 Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 
 Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-Script requires: **bash**, **coreutils**, **curl** *or* **wget**, **tar** *or* **unzip**
+Script requires: **bash, coreutils, sed, grep, curl / wget, tar / unzip
 
 **Usage**:
 
@@ -26,35 +26,19 @@ to the script. The feature-list is a comma-separated list, like this:
 ```bash
 curl https://loof.bid/getcaddy |bash -s git,mailout
 ```
-Or it can be first downloaded and then run:
+The script can also first be downloaded and then run:
 
 ```bash
 wget loof.bid/getcaddy.sh
 bash getcaddy.sh git,mailout
 ```
 
-**Full list of available features**:
+**For the full list of available features, see: [caddyserver.com/download](https://caddyserver.com/download)**
 
-* DNS (*besides an HTTP server, include a DNS server in the binary*)
-* awslambda, cors, expires, filemanager, filter, git, hugo, ipfilter, jsonp, jwt,
-locale, mailout, minify, multipass, prometheus, ratelimit, realip, search, upload
-(*features to enhance the HTTP server*)
-* cloudflare, digitalocean, dnsimple, dyn, gandi, googlecloud, linode, namecheap,
-ovh, rfc2136, route53, vultr (*support for specific DNS services*)
+When the feature list starts with a comma, the features are added to the
+existing binary's current features. A sole comma means: keep the same features.
 
-For all the options, see [caddyserver.com/download](https://caddyserver.com/download)
-
-When the feature list starts with a comma, the plugins listed after are
-added to the existing binary's present features. A sole comma means:
-just keep the same feature set. Examples:
-
-```bash
-curl https://loof.bid/getcaddy |bash -s ,dns,hugo,gandi
-  # or:
-source getcaddy.sh ,
-```
-It is also valid to just specify `none` for no added features.
-
+If no features wanted, specify 'none' as the feature list.
 A forced install location (*path + filename*) can be given as a second argument:
 
 ```bash
