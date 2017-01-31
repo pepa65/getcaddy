@@ -35,12 +35,9 @@ version=$("$caddy_path" -version || true)
 		&& echo "Aborted $0, caddy binary $caddy_path doesn't work" \
 		&& Exit 2
 
-web_version=$(wget -qO- caddyserver.com/download \
-		|grep '<div class="version">Version [^<]*</div>' \
-		|sed 's/.*<div class="version">Version //' \
-		|grep -o '^[^<]*')
+web_version=$(wget -qO- caddyserver.com/download |grep -o 'Version [.0-9]*'
 
-if [[ ${version##* } != $web_version ]]
+if [[ ${version##* } != ${web_version##* } ]]
 then
 	if [[ ! -f "$getcaddy" ]]
 	then
