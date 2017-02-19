@@ -12,24 +12,31 @@
 #	or
 #	  $ wget -qO- loof.bid/getcaddy |bash
 #
-# If you want to get Caddy with extra features, use -s with a
+# If you want to get Caddy with extra features, use bash -s with a
 # comma-separated list of directives, like this:
 #
 #	  $ wget -qO- loof.bid/getcaddy |bash -s git,mailout
 #
-# Or it can be first downloaded and then run:
+# Or the script can be first downloaded and then run with the feature list:
 #
 #   $ wget -O getcaddy.sh loof.bid/getcaddy
 #   $ bash getcaddy.sh git,mailout
-#
-# See https://caddyserver.com/download for the full list of available features.
 #
 # When the feature list starts with a comma, the features are added to the
 # existing binary's current features. When the feature list is 'all', all
 # available features will be added in. Just 'same' means: keep the same
 # features. And 'none' means: no features will be included.
+# See https://caddyserver.com/download for the full list of currently available
+# features, or run with the -n|--nogo commandline switch, like:
 #
-# A forced install location (path + filename) can be given as a second argument.
+#   $ bash getcaddy.sh -n
+#
+# The -n|--nogo switch gives information and does not download/backup/install.
+#
+# A forced install location (path + filename) for the binary can specified with
+# the -l|--location option, like:
+#
+#    $ bash getcaddy.sh -l /usr/bin/caddy
 #
 # This should all work on Mac, Linux, and BSD systems, and
 # hopefully Windows with Cygwin. Please open an issue if you notice any bugs.
@@ -45,8 +52,6 @@ getcaddy()
 	#########################
 
 	# Determine arch (and arm)
-	# NOTE: `uname -m` is more accurate and universal than `arch`
-	# See https://en.wikipedia.org/wiki/Uname
 	local caddy_arm=""
 	local caddy_arch
 	local unamem="$(uname -m)"
@@ -104,23 +109,48 @@ getcaddy()
 		return 6
 	fi
 
+	# process commandline options
+	local caddy_cmd pid nogo=0
+	while ((${#@}))
+	do
+		case $1 in
+			-n|--nogo) nogo=1
+				shift ;;
+			-l|--location) if [[ $2 ]]
+				then
+					caddy_cmd="$2"
+					shift 2
+				else
+					echo "Aborted, must have install location after $1"
+					return 7
+				fi ;;
+			*) # This must be the feature list
+				if [[ $features ]]
+				then  # unknown/extraneous commandline argument
+					echo "Aborted, unsure which are the features, '$features' or '$1'"
+					return 8
+				else
+					features=$1
+					shift
+				fi ;;
+		esac
+	done
+
 	# determine install location
-	local caddy_cmd pid bin
-	if [[ $2 ]]
-	then  # if specified: force that install location
-		caddy_cmd="$2"
+	if [[ $caddy_cmd ]]
+	then  # if specified with -l: force that install location
 		[[ ${caddy_cmd:0:1} = / ]] || caddy_cmd="$PWD/$caddy_cmd"
 	elif pid=$(pgrep -nx "$caddy_bin")
 	then  # most recent match if running
-		bin=$(ls -l /proc/$pid/exe)  # if running: use location of the binary
+		local bin=$(ls -l /proc/$pid/exe)  # if running: use location of the binary
 		caddy_cmd=$(sed "s@^.* /proc/$pid/exe -> @@" <<<"$bin")
 	else
-		caddy_cmd=$(type -p "$caddy_bin" || true)  # first caddy binary in PATH
+		caddy_cmd=$(type -p "$caddy_bin")  # first caddy binary in PATH
 	fi
 
 	# find the curl or wget binaries
 	! local dl_cmd="$(type -p curl) -fsSL" && ! dl_cmd="$(type -p wget) -qO-" \
-			&& echo "Aborted, could not find curl or wget" && return 7
+			&& echo "Aborted, could not find curl or wget" && return 9
 
 	###################
 	# Which features? #
@@ -131,7 +161,6 @@ getcaddy()
 			|sed 's/},/\0\n/g' |grep -o '^.*","name":"[^"]*' |grep -o '[^"]*$')
 	valid_features=$(sed 's/ /,/g' <<<$valid_features)
 
-	local features=$1
 	[[ $features = all ]] && features=$valid_features
 	[[ $features = none ]] && features=""
 	[[ $features = same ]] && features=","
@@ -158,11 +187,12 @@ getcaddy()
 		if [[ ",$valid_features," != *,$feature,* ]]
 		then
 			echo "Aborted, feature '$feature' not valid"
-			return 8
+			return 10
 		fi
 	done
 	# remove extraneous commas
 	features=$(sed 's/ /,/g' <<<${featurelist[@]})
+	echo -e "Valid features: $valid_features\nSelected features: $features"
 
 	# determine fresh install location
 	if [[ -z $caddy_cmd ]]
@@ -171,15 +201,16 @@ getcaddy()
 		# Termux on Android has $PREFIX set which already ends with /usr
 		[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && install_path="$PREFIX/bin"
 		# Fall back to /usr/bin if necessary
-		[[ ! -d $install_path ]] && install_path="/usr/bin"
+		[[ -d $install_path ]] || install_path="/usr/bin"
 		caddy_cmd="$install_path/$caddy_bin"
 	fi
+	echo "Caddy for $caddy_os/$caddy_arch to be installed at $caddy_cmd"
+	((nogo)) && return 0
 
 	########################
 	# Download and extract #
 	########################
 
-	echo "Downloading Caddy for $caddy_os/$caddy_arch"
 	local tmp
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	local caddy_dl="$tmp/caddy_${caddy_os}_$caddy_arch${caddy_arm}_custom$caddy_dl_ext"
@@ -199,18 +230,16 @@ getcaddy()
 	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd="sudo"
 
 	# Back up existing caddy, if any
-	local caddy_version=$("$caddy_cmd" -version || true)
+	local caddy_version=$("$caddy_cmd" -version)
 	if [[ $caddy_version ]]
 	then
 		# caddy of some version is already installed
 		local caddy_backup="${caddy_cmd}_${caddy_version##* }"
-		echo "Backing up $caddy_cmd to $caddy_backup"
-		echo "(Password may be required.)"
+		echo -e "Backing up $caddy_cmd to $caddy_backup\n(may require password)"
 		$sudo_cmd cp -v --backup=numbered "$caddy_cmd" "$caddy_backup"
 	fi
-
 	((pid)) && echo "Stopping caddy" && kill -INT $pid && true
-	echo "Putting caddy in $caddy_cmd (may require password)"
+	echo -e "Putting caddy in $caddy_cmd\n(may require password)"
 	$sudo_cmd mv "$tmp/$caddy_bin" "$caddy_cmd"
 	if local setcap_cmd=$(type -p setcap)
 	then
