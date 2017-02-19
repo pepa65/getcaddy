@@ -4,17 +4,20 @@
 #
 # Checking the Caddy web server download page for the current version and
 # calling the upgrade script 'getcaddy.sh' on a new version.
+# This is meant to be called from root's cron.
 #
-# Usage: checkcaddy.sh [-n|--nogo] [caddy_cmd]
-#  where caddy_cmd is the install location and the -n|--nogo option gives
-#  a report on the necessity of upgrading
+# Usage: checkcaddy.sh [-n|--nogo] [caddy_binary_location]
+#  where caddy_binary_location is the install location and the
+# -n|--nogo switch gives a report on the necessity of upgrading
+#
+# Download: wget loof.bid/checkcaddy.sh
 
 checkcaddy(){
 	set -E
 	trap 'echo "Aborted, error $? in command: $BASH_COMMAND"; return 1' ERR
 
 	# The url for downloading getcaddy.sh
-	getcaddy_url="loof.bid/getcaddy"
+	getcaddy_url="loof.bid/getcaddy.sh"
 
 	# Locations of the to-be-upgraded caddy binary and upgrade script
 	local caddy_cmd=""

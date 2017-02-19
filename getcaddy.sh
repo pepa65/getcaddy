@@ -8,24 +8,24 @@
 #
 # Bash script to install the single-binary Caddy web server. Use it like this:
 #
-#   $ curl -sL loof.bid/getcaddy |bash
+#   $ curl -sL loof.bid/getcaddy.sh |bash
 #	or
-#	  $ wget -qO- loof.bid/getcaddy |bash
+#	  $ wget -qO- loof.bid/getcaddy.sh |bash
 #
 # If you want to get Caddy with extra features, use bash -s with a
 # comma-separated list of directives, like this:
 #
-#	  $ wget -qO- loof.bid/getcaddy |bash -s git,mailout
+#	  $ wget -qO- loof.bid/getcaddy.sh |bash -s git,mailout
 #
 # Or the script can be first downloaded and then run with the feature list:
 #
-#   $ wget -O getcaddy.sh loof.bid/getcaddy
+#   $ wget loof.bid/getcaddy.sh
 #   $ bash getcaddy.sh git,mailout
 #
 # When the feature list starts with a comma, the features are added to the
 # existing binary's current features. When the feature list is 'all', all
 # available features will be added in. Just 'same' means: keep the same
-# features. And 'none' means: no features will be included.
+# features. And 'none' means: no extra features will be included.
 # See https://caddyserver.com/download for the full list of currently available
 # features, or run with the -n|--nogo commandline switch, like:
 #
@@ -170,7 +170,8 @@ getcaddy()
 		# if no binary found, just install a new one with the listed features
 		if [[ -x $caddy_cmd ]]
 		then  # read plugins from binary if present
-			local plugins=$("$caddy_cmd" -plugins |grep ' http\.' |sed 's/^.*http\.//' )
+			local plugins=$("$caddy_cmd" -plugins |grep -e ' http\.' -e ' tls\.dns\.' \
+					|sed -e 's/^.* http\.//' -e 's/^.* tls\.dns\.//')
 			# only add valid features in the plugins list
 			shopt -s nullglob
 			local plugin
