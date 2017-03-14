@@ -4,7 +4,7 @@
 #
 #   Caddy homepage: https://caddyserver.com
 #   Getcaddy issues: https://github.com/pepa65/getcaddy.com/issues
-#   Required: bash, coreutils, sed, grep, curl/wget, tar (or unzip on OSX and Windows)
+#   Required: bash, mv, rm, type, sed, grep, curl/wget, tar (or unzip on OSX and Windows)
 #
 # Bash script to install the single-binary Caddy web server. Use it like this:
 #
@@ -77,7 +77,7 @@ getcaddy()
 		caddy_os="darwin"
 		caddy_dl_ext=".zip"
 		local vers=$(sw_vers)
-		local version=${vers##*ProductVersion: }
+		local version=${vers##*ProductVersion:}
 		local OSX_MAJOR OSX_MINOR
 		IFS='.' read OSX_MAJOR OSX_MINOR _ <<<"$version"
 		((OSX_MAJOR < 10)) \
