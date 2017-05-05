@@ -16,8 +16,11 @@ checkcaddy(){
 	set -E
 	trap 'echo "Aborted, error $? in command: $BASH_COMMAND"; return 1' ERR
 
-	# The url for downloading getcaddy.sh
+	# URL for downloading getcaddy.sh
 	getcaddy_url="loof.bid/getcaddy.sh"
+
+	# URL for latest version
+	latest="github.com/mholt/caddy/releases/latest"
 
 	# Locations of the to-be-upgraded caddy binary and upgrade script
 	local caddy_cmd=""
@@ -56,11 +59,12 @@ checkcaddy(){
 			&& echo "Aborted, caddy binary $caddy_cmd doesn't work" \
 			&& return 4
 
-	local web_version=$(wget -qO- caddyserver.com/download |grep -o 'Version [^<]*')
+	local web_version=$(wget -qO- "$latest" |
+			grep '<span class="css-truncate-target">' |grep -o '[.0-9]*')
 	[[ -z $web_version ]] \
-			&& echo "Aborted, version not found in http://caddyserver.com/download" \
+			&& echo "Aborted, version not found in $latest" \
 			&& return 5
-	if [[ ${version##* } != ${web_version##* } ]]
+	if [[ ! ${version##* } = $web_version ]]
 	then  # different version: upgrade
 		if [[ ! -f $getcaddy_cmd ]]
 		then  # no upgrade file at default location
@@ -73,7 +77,7 @@ checkcaddy(){
 				$sudo_cmd wget -qO "$getcaddy_cmd" "$getcaddy_url"
 			fi
 		fi
-		((nogo)) && echo "Not executing '$getcaddy_cmd , $caddy_cmd'" \
+		((nogo)) && echo "Upgrade available: Caddy $web_version" \
 				|| bash "$getcaddy_cmd" , "$caddy_cmd"
 	else
 		((nogo)) && echo "$version up to date"
