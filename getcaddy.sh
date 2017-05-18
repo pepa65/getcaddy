@@ -157,13 +157,15 @@ getcaddy()
 
 	# Check os/arch
 	local dl_file="https://caddyserver.com/api/download-page"
-	local dl_info=$(sed 's@{@\n{@g' /home/pp/download-page)
-#	local dl_info=$($dl_cmd $dl_file |sed 's@{@\n{@g')
+	local dl_info=$($dl_cmd $dl_file |sed 's@{@\n{@g')
 	local os_archs=$(grep '{"GOOS":' <<<"$dl_info"|
 			grep -o ':".*,"' |cut -d '"' -f2,6,10 |sed 's@"@/@' |sed 's@"@@g')
 	! grep -q ^$caddy_os/$caddy_arch$ <<<"$os_archs" \
 			&& echo "Aborted, invalid os/arch: $caddy_os/$caddy_arch" && return 12
 	((nogo)) && echo " Supported OS/architectures:" ${os_archs//$'\n'/,}
+
+	local sudo_cmd
+	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd="sudo"
 
 	# Determine installed location
 	if [[ $caddy_loc ]]
@@ -171,7 +173,7 @@ getcaddy()
 		[[ ${caddy_loc:0:1} = / ]] || caddy_loc="$PWD/$caddy_loc"
 	elif caddy_pid=$(pgrep -nx "$caddy_bin")
 	then  # most recent match if running
-		local bin=$(ls -l /proc/$caddy_pid/exe)  # if running: use location of the binary
+		local bin=$($sudo_cmd ls -l /proc/$caddy_pid/exe)  # if running: use location of the binary
 		caddy_loc=$(sed "s@^.* /proc/$caddy_pid/exe -> @@" <<<"$bin")
 	else  # first caddy binary in PATH
 		caddy_loc=$(type -p "$caddy_bin")
@@ -252,10 +254,6 @@ getcaddy()
 		*.tar.gz) tar -xzf "$caddy_dl" -C "$tmp/" "$caddy_bin" ;;
 	esac
 	chmod +x "$tmp/$caddy_bin"
-
-	# Not every platform has or needs sudo (see issue #40)
-	local sudo_cmd
-	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd="sudo"
 
 	# Back up file at install location
 	local caddy_version=unknown
