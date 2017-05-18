@@ -164,17 +164,13 @@ getcaddy()
 			&& echo "Aborted, invalid os/arch: $caddy_os/$caddy_arch" && return 12
 	((nogo)) && echo " Supported OS/architectures:" ${os_archs//$'\n'/,}
 
-	local sudo_cmd
-	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd="sudo"
-
 	# Determine installed location
 	if [[ $caddy_loc ]]
 	then  # specified with -l/--location: force that install location
 		[[ ${caddy_loc:0:1} = / ]] || caddy_loc="$PWD/$caddy_loc"
 	elif caddy_pid=$(pgrep -nx "$caddy_bin")
 	then  # most recent match if running
-		local bin=$($sudo_cmd ls -l /proc/$caddy_pid/exe)  # if running: use location of the binary
-		caddy_loc=$(sed "s@^.* /proc/$caddy_pid/exe -> @@" <<<"$bin")
+		caddy_loc=$(pgrep -nax "$caddy_bin" |cut -d' ' -f2)  # location of running binary
 	else  # first caddy binary in PATH
 		caddy_loc=$(type -p "$caddy_bin")
 	fi
@@ -228,8 +224,6 @@ getcaddy()
 			install_plugins+="$plugin"
 		else
 			echo " Removed plugin '$plugin' from list: not valid"
-#			echo "Aborted, plugin '$plugin' not valid"
-#			return 10
 		fi
 	done
 
@@ -254,6 +248,9 @@ getcaddy()
 		*.tar.gz) tar -xzf "$caddy_dl" -C "$tmp/" "$caddy_bin" ;;
 	esac
 	chmod +x "$tmp/$caddy_bin"
+
+	local sudo_cmd
+	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd="sudo"
 
 	# Back up file at install location
 	local caddy_version=unknown
