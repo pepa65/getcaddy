@@ -13,47 +13,25 @@ Script requires: **bash, mv, rm, type, sed, grep, curl / wget, tar (or unzip on 
 **Usage**:
 
 ```bash
-curl https://loof.bid/getcaddy.sh |bash
-  # or:
-wget -qO- loof.bid/getcaddy.sh |bash
+bash getcaddy.sh [-n|--nogo] [-a|--arch <arch>] [-o|--os <os>]
+                 [-l|--location <path/file>] [<pluginlist>]
+  -n or --nogo lists available plugins, architectures and oses,
+               and does not download/backup/install the caddy binary
+  <arch> sets the architecture, <os> the OS; when used, the downloaded binary
+         will not be run (and might not work)
+  <path/file> is the forced install location (path + filename) for the binary
+  pluginlist: [,][<plugin>[,<plugin>]...]
 ```
-In automated environments, you probably need to run as root.
-If you want extra features to be added into the Caddy binary, use the `-s`
-commandline option with bash, or include the feature-list as an argument
-to the script. The feature-list is a comma-separated list, like this:
+Full list of currently available plugins: [caddyserver.com/download](https://caddyserver.com/download)
+When the pluginlist starts with a comma, the plugins are added to the
+existing binary's current plugins. When the pluginlist is 'all', all
+available plugins will be added in; 'same' means: keep the same plugins.
+And 'none' means: no plugins will be included at all.
+No pluginlist defaults to 'same' (if no previous binary found: 'none')
 
-```bash
-curl https://loof.bid/getcaddy.sh |bash -s git,mailout
-```
-The script can also first be downloaded and then run:
-
-```bash
-wget loof.bid/getcaddy.sh
-bash getcaddy.sh git,mailout
-```
-
-When the feature list starts with a comma, the features are added to the
-existing binary's current features. When the feature list is `all`, all
-available features will be added in. Just `same` means: keep the same
-features. And `none` means: no extra features will be included.
-See [caddyserver.com/download](https://caddyserver.com/download) for
-the full list of currently available features, or
-run with the `-n`/`--nogo` commandline switch, like:
-
-```bash
-bash getcaddy.sh -n
-```
-
-The `-n`/`--nogo` switch gives information and does not download/backup/install.
-A forced install location (*path + filename*) for the binary can be specified
-with the `-l`/`--location` switch, like:
-
-```bash
-bash getcaddy.sh -l /usr/bin/caddy
-```
-
-This all should work on Mac, Linux, and BSD systems, and
-hopefully on Windows with Cygwin. Please open an issue if you notice any bugs.
+Installing Caddy by running from download (either with curl or wget):
+`  curl -sL loof.bid/getcaddy.sh |bash [-s <commandline option>...]`
+`  wget -qO- loof.bid/getcaddy.sh |bash [-s <commandline option>...]`
 
 ## checkcaddy.sh -- Caddy web server upgrade checker script
 

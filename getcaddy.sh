@@ -21,8 +21,8 @@ set +vx
 # No pluginlist defaults to 'same' (if no previous binary found: 'none')
 #
 # Installing Caddy by running from download (either with curl or wget):
-#   curl -sL loof.bid/getcaddy.sh |bash [-s <pluginlist>]
-#	  wget -qO- loof.bid/getcaddy.sh |bash [-s <pluginlist>]
+#   curl -sL loof.bid/getcaddy.sh |bash [-s <commandline option>...]
+#	  wget -qO- loof.bid/getcaddy.sh |bash [-s <commandline option>...]
 #
 # - Caddy homepage: https://caddyserver.com
 # - Getcaddy issues: https://github.com/pepa65/getcaddy.com/issues

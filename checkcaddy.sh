@@ -54,7 +54,7 @@ checkcaddy(){
 			&& return 3
 
 	# Get version from installed binary
-	local version=$("$caddy_cmd" -version)
+	local version=$("$caddy_cmd" --version)
 	[[ -z $version ]] \
 			&& echo "Aborted, caddy binary $caddy_cmd doesn't work" \
 			&& return 4
