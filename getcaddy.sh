@@ -86,7 +86,7 @@ getcaddy()
 	then
 		local uname=$(uname)
 		local -u unameu=$uname
-		if [[ ${unameu} == *DARWIN* ]]
+		if [[ $unameu == *DARWIN* ]]
 		then
 			caddy_os="darwin"
 			local vers=$(sw_vers)
@@ -102,22 +102,22 @@ getcaddy()
 			((OSX_MINOR < 5)) \
 					&& echo "Aborted, unsupported OS X version (10.5-)" \
 					&& return 8
-		elif [[ ${unameu} == *LINUX* ]]
+		elif [[ $unameu == *LINUX* ]]
 		then
 			caddy_os="linux"
-		elif [[ ${unameu} == *FREEBSD* ]]
+		elif [[ $unameu == *FREEBSD* ]]
 		then
 			caddy_os="freebsd"
-		elif [[ ${unameu} == *OPENBSD* ]]
+		elif [[ $unameu == *OPENBSD* ]]
 		then
 			caddy_os="openbsd"
-		elif [[ ${unameu} == *NETBSD* ]]
+		elif [[ $unameu == *NETBSD* ]]
 		then
 			caddy_os="netbsd"
-		elif [[ ${unameu} == *SOLARIS* ]]
+		elif [[ $unameu == *SOLARIS* ]]
 		then
 			caddy_os="solaris"
-		elif [[ ${unameu} == *WIN* ]]
+		elif [[ $unameu == *WIN* || $unameu == MSYS2* ]]
 		then
 			caddy_os="windows"
 		else
@@ -213,7 +213,6 @@ getcaddy()
 	fi
 
 	# Validate the specified plugins
-#	for plugin in "${pluginlist[@]}"
 	local install_plugins=
 	[[ $plugins = none ]] && plugins=
 	for plugin in ${plugins//,/ }
