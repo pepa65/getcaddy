@@ -273,7 +273,7 @@ getcaddy()
 		echo " Allowing lower port numbers through setcap"
 		$sudo_cmd "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc"
 	fi
-	((!forced)) && ((caddy_pid)) && echo " Restarting caddy" && $sudo_cmd "$caddy_cmd"
+	((!forced)) && ((caddy_pid)) && echo " Restarting caddy" && $sudo_cmd $caddy_cmd
 	$sudo_cmd rm -- "$caddy_dl"
 
 	# Check intallation
