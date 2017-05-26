@@ -35,7 +35,7 @@ getcaddy()
 	trap 'echo -e "Aborted, error $? in command: $BASH_COMMAND"; return 1' ERR
 
 	# Process commandline options
-	local caddy_loc caddy_os caddy_arch caddy_pid nogo=0 forced=0 plugins=
+	local caddy_loc proc caddy_cmd caddy_os caddy_arch caddy_pid nogo=0 forced=0 plugins=
 	while ((${#@}))
 	do
 		case $1 in
@@ -168,9 +168,11 @@ getcaddy()
 	if [[ $caddy_loc ]]
 	then  # specified with -l/--location: force that install location
 		[[ ${caddy_loc:0:1} = / ]] || caddy_loc="$PWD/$caddy_loc"
-	elif caddy_pid=$(pgrep -nx "$caddy_bin")
+	elif proc=$(pgrep -nax "$caddy_bin")
 	then  # most recent match if running
-		caddy_loc=$(pgrep -nax "$caddy_bin" |cut -d' ' -f2)  # location of running binary
+		caddy_cmd=$(cut -d' ' -f2- <<<"$proc")  # commandline
+		caddy_pid=$(cut -d' ' -f1 <<<"$proc")  # pid
+		caddy_loc=$(cut -d' ' -f2 <<<"$proc")  # location of running binary
 	else  # first caddy binary in PATH
 		caddy_loc=$(type -p "$caddy_bin")
 	fi
@@ -262,15 +264,16 @@ getcaddy()
 	fi
 
 	# Stop running Caddy, move the new binary in place and restart it
-	((!forced)) && ((caddy_pid)) && echo " Stopping caddy" && kill -INT $caddy_pid && true
+	((!forced)) && ((caddy_pid)) && echo " Stopping caddy" && $sudo_cmd kill -INT $caddy_pid
 	echo -e " Putting caddy in $caddy_loc\n (may require password)"
 	$sudo_cmd mv "$tmp/$caddy_bin" "$caddy_loc"
-	if ((!forced)) && local setcap_cmd=$(type -p setcap)
+	local setcap_cmd
+	if ((!forced)) && setcap_cmd=$(type -p setcap)
 	then
 		echo " Allowing lower port numbers through setcap"
 		$sudo_cmd "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc"
 	fi
-	((!forced)) && ((caddy_pid)) && echo " Restarting caddy" && "$caddy_loc"
+	((!forced)) && ((caddy_pid)) && echo " Restarting caddy" && $sudo_cmd "$caddy_cmd"
 	$sudo_cmd rm -- "$caddy_dl"
 
 	# Check intallation
