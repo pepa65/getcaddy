@@ -45,8 +45,12 @@ Installing Caddy by running from download (either with curl or wget):
 **Usage in crontab**:
 
 ```cron
-# checking each Monday at 05:00 am for an updated caddy
-0 5 * * 1 /INSTALL/PATH/getcaddy [caddy_binary_location]
+# Check each Monday at 05:00 am for an updated Caddy and install if available
+0 5 * * 1 /INSTALL/PATH/getcaddy -q [-l caddy_binary_location]
+```
+```cron
+# Check every day at noon for an updated Caddy and alerting admin if available
+0 12 * * 1 /INSTALL/PATH/getcaddy -n
 ```
 Where `/INSTALL/PATH` is the directory location of the `getcaddy` script and
 `caddy_binary_location` is the optional install location of the *Caddy* binary
