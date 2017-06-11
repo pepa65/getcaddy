@@ -7,8 +7,8 @@
 * Version 0.10
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
-* Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)*
-* Download the getcaddy script: [loof.bid/gc](https://loof.bid/gc)
+* Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)**
+* Download the getcaddy script: **[loof.bid/gc](https://loof.bid/gc)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
 Requires: **bash, mv, rm, type, sed, grep, pgrep, curl/wget, tar**
