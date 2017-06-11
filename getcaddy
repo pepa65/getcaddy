@@ -1,0 +1,279 @@
+#!/usr/bin/env bash
+set +vx
+VERSION='0.1'
+# getcaddy v0.1
+# Caddy web server installer and upgrade script
+# Bash script to install the single-binary Caddy web server
+#
+# Full list of currently available plugins: https://caddyserver.com/download
+# or run: bash getcaddy -n
+#
+# Installing Caddy by running from download (either with curl or wget):
+#   curl -sL loof.bid/getcaddy.sh |bash [-s <commandline option>...]
+#	  wget -qO- loof.bid/getcaddy.sh |bash [-s <commandline option>...]
+#
+# - Caddy homepage: //caddyserver.com
+# - Github page for getcaddy.com: //github.com/caddyserver/getcaddy.com
+# - Github page for getcaddy: //github.com/pepa65/getcaddy.com/tree/upgrade
+# - Download t he getcaddy script: //loof.bid/gc
+# - Getcaddy issues: //github.com/pepa65/getcaddy.com/issues
+# - Required: bash, mv, rm, type, cut, sed, grep, pgrep, curl/wget, tar
+#   (or unzip for OSX and Windows binaries)
+
+Help(){  # $1:optional message
+	cat <<-EOS
+		 $C$SELF $VERSION$X
+		 Bash script to install and upgrade the single-binary Caddy web server
+		 Usage: bash getcaddy [-h|--help] [-n|--nogo] [-f|--force] [<pluginlist>]
+		             [ [-a|--arch <arch>] [-o|--os <os>] -l|--location <filepath> ]
+		   -n/--nogo:    List available plugins, architectures and oses,
+		                 does not download, backup or install the caddy binary
+		   -q/--quiet:   Surpress output except for error messages
+		   -f/--force:   Force installation when the latest version is already installed
+		   <pluginlist>: all | none | [,]<plugin>[,<plugin>]...
+		                 Previously installed plugins will be installed again if empty
+		                 or the listed plugins will be added if started with a comma
+		   <filepath>:   The install location (path + filename) for the binary
+		   <arch>, <os>: Sets the architecture and the OS; <filepath> must then
+		                 also be set, and the downloaded binary will not be run
+		   -h/--help:    Display this help text
+		 Returns success when upgrade is possible or installation finishes successfully
+	EOS
+	[[ $1 ]] && echo -e "$1"
+}
+
+Info(){  # $1:level of urgency, rest:arguments of echo
+	((quiet)) && return 0
+	local u=$1
+	shift
+	((nogo || u)) &&
+		echo -e "$@"  # "$@" splits the arguments while preserving the quotes, "$*" doesn't
+}
+
+Exit(){  # $1:message, $2:exitcode
+	echo -e "ABORT: $1"
+	exit $2
+}
+
+Getcaddy(){
+	# Process commandline options
+	local caddy_loc= caddy_os caddy_arch nogo=0 quiet=0 force=0 norun=0 plugins=
+	while (($#))
+	do
+		case $1 in
+		-h|--help) Help; exit 0 ;;
+		-n|--nogo) nogo=1; shift ;;
+		-q|--quiet) quiet=1; shift ;;
+		-f|--force) force=1; shift ;;
+		-l|--location) [[ $2 ]] && caddy_loc="$2" && shift 2 ||
+				Exit "must have install location after $1" 3
+			[[ -f $caddy_loc || ! -a $caddy_loc ]] ||
+				Exit "remove $caddy_loc manually first: no ordinary file" 4 ;;
+		-o|--os) [[ $2 ]] && caddy_os="$2" && shift 2 && norun=1 ||
+				Exit "must have OS after $1" 5 ;;
+		-a|--arch) [[ $2 ]] && caddy_arch="$2" && shift 2 && norun=1 ||
+				Exit "must have architecture after $1" 6 ;;
+		*) # this must be the plugin list
+			[[ $plugins ]] && Exit "unsure which are the plugins, '$plugins' or '$1'" 7
+				plugins=$1
+				shift ;;
+		esac
+	done
+	((norun)) && [[ -z $caddy_loc ]] && Exit "must set location when setting arch or os" 8
+	((force && nogo)) && Exit "can't combine -f/--force and -n/--nogo options" 9
+
+	# Determine OS, binary name and package type
+	local caddy_ext='.tar.gz' caddy_bin='caddy'
+	if [[ -z $caddy_os ]]
+	then
+		local uname=$(uname)
+		local -u unameu=$uname
+		case $unameu in
+		*DARWIN*) caddy_os='darwin'
+			local version=$(sw_vers) version=${version##*ProductVersion:} OSX_MAJOR OSX_MINOR
+			IFS='.' read OSX_MAJOR OSX_MINOR _ <<<"$version"
+			((OSX_MAJOR < 10)) && Exit "unsupported OS X version (9-)" 10
+			((OSX_MAJOR > 10)) && Exit "unsupported OS X version (11+)" 11
+			((OSX_MINOR < 5)) && Exit "unsupported OS X version (10.5-)" 12 ;;
+		*LINUX*) caddy_os='linux' ;;
+		*FREEBSD*) caddy_os='freebsd' ;;
+		*OPENBSD*) caddy_os='openbsd' ;;
+		*NETBSD*) caddy_os='netbsd' ;;
+		*SOLARIS*) caddy_os='solaris' ;;
+		*WIN*|MSYS2*) caddy_os='windows' ;;
+		*) Exit "unsupported or unknown os: $uname" 13 ;;
+		esac
+	fi
+	[[ $caddy_os = darwin || $caddy_os = windows ]] && caddy_ext='.zip'
+	[[ $caddy_os = windows ]] && caddy_bin=$caddy_bin.exe
+
+	# Determine arch
+	if [[ -z $caddy_arch ]]
+	then
+		local unamem=$(uname -m)
+		case $unamem in
+		*aarch64*) caddy_arch='arm64' ;;
+		*64*) caddy_arch='amd64' ;;
+		*86*) caddy_arch='386' ;;
+		*armv5*) caddy_arch='arm5' ;;
+		*armv6l*) caddy_arch='arm6' ;;
+		*armv7l*) caddy_arch='arm7' ;;
+		*arm64*) caddy_arch='arm64' ;;
+		*mips64le*) caddy_arch='mips64le' ;;
+		*mips64*) caddy_arch='mips64' ;;
+		*mipsle*) caddy_arch='mipsle' ;;
+		*mips*) caddy_arch='mips' ;;
+		*ppc64le*) caddy_arch='ppc64le' ;;
+		*ppc64*) caddy_arch='ppc64' ;;
+		*) Exit "unsupported or unknown architecture: $unamem" 14 ;;
+		esac
+	fi
+
+	# Find the curl or wget binaries
+	local dl_cmd
+	! dl_cmd="$(type -p curl) -fsSL" && ! dl_cmd="$(type -p wget) -qO-" &&
+		Exit "could not find curl or wget" 15
+
+	# Find latest version
+	local url="https://caddyserver.com/api/download-page"
+	local dl_info=$($dl_cmd $url |sed 's@{@\n{@g')
+	local web_version=$(grep -o '^{"Version":"v[^"]*' <<<"$dl_info" |sed '1s@^.*v@@;q')
+	Info 0 "Latest version: Caddy $web_version"
+
+	# Determine installed location
+	local proc caddy_pid
+	if [[ $caddy_loc ]]
+	then  # specified with -l/--location: force that install location
+		[[ ${caddy_loc:0:1} = / ]] || caddy_loc="$PWD/$caddy_loc"
+	elif proc=$(pgrep -nax "$caddy_bin")
+	then  # most recent match if running
+		caddy_pid=$(cut -d' ' -f1 <<<"$proc")  # pid
+		caddy_loc=$(cut -d' ' -f2 <<<"$proc")  # location of running binary
+	else  # first caddy binary in PATH
+		caddy_loc=$(type -p "$caddy_bin")
+	fi
+
+	# determine first-time install location
+	local local_version
+	if [[ -z $caddy_loc ]]
+	then  # location not set on commandline, not running, not in PATH
+		local install_path="/usr/local/bin"
+		# Termux on Android has $PREFIX set which already ends with /usr
+		[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && install_path="$PREFIX/bin"
+		# Fall back to /usr/bin if necessary
+		[[ -d $install_path ]] || install_path="/usr/bin"
+		caddy_loc="$install_path/$caddy_bin"
+	elif [[ ! -x $caddy_loc ]]
+	then
+		Info 1 ""
+	else
+		local_version=$("$caddy_loc" --version) && local_version=${local_version#Caddy }
+		[[ -z $local_version ]] && Exit "error getting local caddy version" 16
+		Info 1 "Local instal of Caddy $local_version in $caddy_loc"
+	fi
+
+	# Find supported os/arch
+	local os_archs=$(grep '{"GOOS":' <<<"$dl_info" |cut -d '"' -f4,8,12 |sed -e 's@"@/@' -e 's@"@@')
+	! grep -q ^$caddy_os/$caddy_arch$ <<<"$os_archs" &&
+		Exit "unsupported os/arch: $caddy_os/$caddy_arch" 17
+	Info 0 "- Supported OS/architectures:" ${os_archs//$'\n'/, }
+
+	# Determine valid plugins
+	local n_valid valid_plugins=$(grep -o ',"Name":"[a-z0-9.]*","Type":' <<<"$dl_info" |
+			sed -e 's@^,"Name":"@@' -e 's@".*@@')
+	valid_plugins=$(sed 's@ @,@g' <<<$valid_plugins)  # no quotes replaces newlines
+	n_valid=$(wc -w <<<${valid_plugins//,/ })
+	[[ $plugins = all ]] && plugins=$valid_plugins
+
+	# Add to the current plugins (empty, comma)
+	local plugin
+	if [[ -z $plugins || ${plugins:0:1} = "," ]]
+	then  # if functional binary found, read plugins and weed them
+		[[ $local_version ]] && for plugin in $("$caddy_loc" --plugins |grep -v ':')
+			do
+				[[ ,$valid_plugins, = *,$plugin,* ]] && plugins+=",$plugin"
+			done
+		# remove the initial comma
+		plugins=${plugins:1}
+	fi
+
+	# Validate the specified plugins
+	local install_plugins= n_plugins=0 n_install=0
+	[[ $plugins = none ]] && plugins=
+	for plugin in ${plugins//,/ }
+	do
+		((++n_plugins))
+		if [[ ,$valid_plugins, = *,$plugin,* ]]
+		then
+			((++n_install))
+			install_plugins+=" $plugin"
+		else
+			Info 1 " Removed plugin '$plugin' from list: not valid"
+		fi
+		# remove leading space
+		install_plugins=${install_plugins:1}
+	done
+
+	# report back, exit if nogo
+	Info 0 "- $n_valid Valid plugins: ${valid_plugins//,/, }"
+	Info 0 "- $n_plugins Selected plugins: ${plugins//,/, }"
+	Info 1 "- Installing $n_install plugins: ${install_plugins// /, }"
+	Info 1 -n " Caddy $web_version for $caddy_os/$caddy_arch "
+	if [[ $web_version = $local_version ]]
+	then
+		Info 1 "already installed"
+		((!force)) && exit 1
+	else
+		Info 1 "would be an upgrade"
+		((nogo)) && exit 0
+	fi
+
+	## Download and extract
+	local tmp
+	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
+	local caddy_dl="$tmp/caddy-$caddy_os-$caddy_arch$caddy_ext"
+	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?plugins=$plugins"
+	Info 1 " URL: $caddy_url"
+	$dl_cmd "$caddy_url" >"$caddy_dl"
+
+	Info 1 " Extracting"
+	case "$caddy_dl" in
+		*.zip)    unzip -o "$caddy_dl" "$caddy_bin" -d "$tmp/" ;;
+		*.tar.gz) tar -xzf "$caddy_dl" -C "$tmp/" "$caddy_bin" ;;
+	esac
+	chmod +x "$tmp/$caddy_bin"
+
+	local sudo_cmd
+	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd='sudo'
+
+	# Back up file at install location
+	if [[ $local_version ]]
+	then  # some sort of working binary found here
+		local caddy_backup="${caddy_loc}_$local_version"
+		Info 1 " Backing up $caddy_loc to $caddy_backup (needs privileges)"
+		$sudo_cmd cp -v --backup=numbered "$caddy_loc" "$caddy_backup"
+	fi
+
+	# Move the new binary in place and restart it
+	Info 1 " Putting caddy in $caddy_loc (needs privileges)"
+	$sudo_cmd mv "$tmp/$caddy_bin" "$caddy_loc"
+	local setcap_cmd
+	if ((!norun)) && setcap_cmd=$(type -p setcap)
+	then
+		Info 1 " Allowing lower port numbers through setcap (needs privileges)"
+		$sudo_cmd "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc"
+	fi
+	((!norun)) && ((caddy_pid)) && Info 1 " Restarting caddy (needs privileges)" &&
+		 $sudo_cmd kill -USR1 $caddy_pid
+	rm -- "$caddy_dl"
+
+	# Check intallation if arch/os not set
+	((!norun)) && Info 1 " Version: $("$caddy_loc" --version)"
+	Info 1 " OK: successfully installed"
+	exit 0
+}
+
+SELF="${BASH_SOURCE##*/}"
+W=$'\e[37m' R=$'\e[31m' G=$'\e[32m' Y=$'\e[33m' C=$'\e[36m' X=$'\e[39m'
+[[ $- = *i* ]] && Help "$R To run this do:\n$W  bash $SELF$X" && return 2
+Getcaddy "$@"
