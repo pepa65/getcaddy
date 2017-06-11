@@ -1,5 +1,9 @@
 # getcaddy
 
+### Caddy web server installer and upgrade script
+
+#### Bash script to install or upgrade the single-binary Caddy web server
+
 * Version 0.10
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
@@ -7,12 +11,8 @@
 * Download the getcaddy script: [loof.bid/gc](https://loof.bid/gc)
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-## getcaddy -- Caddy web server installer and upgrade script
-
-#### Bash script to install or upgrade the single-binary Caddy web server
-
-Script requires: **bash, mv, rm, type, sed, grep, pgrep, curl/wget, tar
-(or unzip for OSX and Windows binaries)**
+Requires: **bash, mv, rm, type, sed, grep, pgrep, curl/wget, tar**
+(or **unzip** for OSX and Windows binaries)
 
 **Usage**:
 ```
@@ -32,10 +32,14 @@ Script requires: **bash, mv, rm, type, sed, grep, pgrep, curl/wget, tar
    Returns success when upgrade is possible or installation finishes successfully
 ```
 Full list of currently available plugins: [caddyserver.com/download](https://caddyserver.com/download)
-or run: `bash getcaddy -n`
+or run:
+
+`bash getcaddy -n`
 
 Installing Caddy by running from download (either with curl or wget):
+
 `  curl -sL loof.bid/gc |bash [-s <commandline option>...]`
+
 `  wget -qO- loof.bid/gc |bash [-s <commandline option>...]`
 
 **Usage in crontab**:
@@ -44,5 +48,5 @@ Installing Caddy by running from download (either with curl or wget):
 # checking each Monday at 05:00 am for an updated caddy
 0 5 * * 1 /INSTALL/PATH/getcaddy [caddy_binary_location]
 ```
-Where `/INSTALL/PATH` is the location of the getcaddy script and
-`caddy_binary_location` is the optional install location of the caddy binary
+Where `/INSTALL/PATH` is the directory location of the `getcaddy` script and
+`caddy_binary_location` is the optional install location of the *Caddy* binary
