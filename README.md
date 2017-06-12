@@ -4,7 +4,7 @@
 
 **Bash script to install or upgrade the single-binary Caddy web server**
 
-* Version 0.11
+* Version 0.12
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)**
