@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Install getcaddy: the Caddy web server installer and upgrade script
+# - Github page: //github.com/pepa65/getcaddy.com/tree/upgrade
+# - Download this igetcaddy script: //loof.bid/ig
+# - Report issues: //github.com/pepa65/getcaddy.com/issues
+# - Required: bash, sudo, curl/wget
+# Usage: wget -qO- loof.bid/ig |bash [-s <location>]
+#        Where <location is the path + filename of the getcaddy script
+
+Igetcaddy(){
+	location=/usr/local/bin/getcaddy
+	[[ $1 ]] && location=$1
+	getcaddy=$(wget -qO- loof.bid/gc)
+	echo "Installing 'getcaddy' (requires privileges)
+	sudo echo "$getcaddy" >"$location"
+	chmod +x "$location"
+}
+
+Igetcaddy "$@"
+exit 0

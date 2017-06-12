@@ -9,15 +9,15 @@ VERSION='0.11'
 # or run: bash getcaddy -n
 #
 # Installing Caddy by running from download (either with curl or wget):
-#   curl -sL loof.bid/getcaddy.sh |bash [-s <commandline option>...]
-#	  wget -qO- loof.bid/getcaddy.sh |bash [-s <commandline option>...]
+#   curl -sL loof.bid/gc |bash [-s -- <commandline option>...]
+#	  wget -qO- loof.bid/gc |bash [-s -- <commandline option>...]
 #
 # - Caddy homepage: //caddyserver.com
 # - Github page for getcaddy.com: //github.com/caddyserver/getcaddy.com
 # - Github page for getcaddy: //github.com/pepa65/getcaddy.com/tree/upgrade
 # - Download the getcaddy script: //loof.bid/gc
 # - Getcaddy issues: //github.com/pepa65/getcaddy.com/issues
-# - Required: bash, mv, rm, type, cut, sed, grep, pgrep, curl/wget, tar
+# - Required: bash, sudo, mv, rm, type, cut, sed, grep, pgrep, curl/wget, tar
 #   (or unzip for OSX and Windows binaries)
 
 Help(){  # $1:optional message

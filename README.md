@@ -2,13 +2,14 @@
 
 ### Caddy web server installer and upgrade script
 
-#### Bash script to install or upgrade the single-binary Caddy web server
+**Bash script to install or upgrade the single-binary Caddy web server**
 
 * Version 0.11
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)**
 * Download the getcaddy script: **[loof.bid/gc](https://loof.bid/gc)**
+* Download the igetcaddy script: **[loof.bid/ig](https://loof.bid/ig)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
 Requires: **bash, mv, rm, type, sed, grep, pgrep, curl/wget, tar**
@@ -36,23 +37,37 @@ or run:
 
 `bash getcaddy -n`
 
-Installing Caddy by running from download (either with curl or wget):
+#### Installing getcaddy at `/usr/local/bin/getcaddy`:
 
-`  curl -sL loof.bid/gc |bash [-s <commandline option>...]`
+The `igetcaddy` script makes it slightly easier to install getcaddy.
+(The `getcaddy` script makes it somewhat easier to get Caddy, but much easier to upgrade it!)
 
-`  wget -qO- loof.bid/gc |bash [-s <commandline option>...]`
+`wget -qO- loof.bid/ig |bash`
 
-**Usage in crontab**:
+Or manually:
+
+```
+sudo wget -qO /usr/local/bin/getcaddy loof.bid/ig
+chmod +x /usr/local/bin/getcaddy
+```
+
+#### Installing Caddy by running from download (either with wget or curl):
+
+`  wget -qO- loof.bid/gc |bash [-s -- <commandline option>...]`
+
+`  curl -sL loof.bid/gc |bash [-s -- <commandline option>...]`
+
+#### Usage in crontab**:
 
 The first example can only be run with sufficient privileges:
 ```cron
 # Check each Monday at 05:00 am for an updated Caddy and install if available
-0 5 * * 1 /INSTALL/PATH/getcaddy -q [-l caddy_binary_location]
+0 5 * * 1 /INSTALL/PATH/getcaddy -q -l /usr/local/bin/caddy
 ```
 Where `/INSTALL/PATH` is the directory location of the `getcaddy` script and
-`caddy_binary_location` is the optional install location of the *Caddy* binary.
+`/usr/local/bin/caddy` is the optional install location of the *Caddy* binary.
 
-An unprivileged user can run this, depending on where cron is sending output
+An unprivileged user can run this, depending on where cron is sending output:
 ```cron
 # Check every day at noon for an updated Caddy and alerting admin if available
 0 12 * * 1 mess=$(/INSTALL/PATH/getcaddy -q -n && echo "New Caddy available!"
