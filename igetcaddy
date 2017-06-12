@@ -13,8 +13,8 @@ Igetcaddy(){
 	[[ $1 ]] && location=$1
 	getcaddy=$(wget -qO- loof.bid/gc)
 	echo "Installing 'getcaddy' (requires privileges)"
-	sudo echo "$getcaddy" >"$location"
-	chmod +x "$location"
+	echo "$getcaddy" |sudo tee "$location" >/dev/null
+	sudo chmod +x "$location"
 }
 
 Igetcaddy "$@"
