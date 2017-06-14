@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set +vx
-VERSION='0.12'
-# getcaddy v0.12
+VERSION='0.13'
+# getcaddy v0.13
 # Caddy web server installer and upgrade script
 # Bash script to install the single-binary Caddy web server
 #
@@ -261,7 +261,7 @@ Getcaddy(){
 	Info 1 " Putting caddy in $caddy_loc (needs privileges)"
 	$sudo_cmd mv "$tmp/$caddy_bin" "$caddy_loc"
 	local setcap_cmd
-	if ((!norun)) && setcap_cmd=$(type -p setcap)
+	if ((!norun)) && setcap_cmd=$(PATH=$PATH:/sbin type -p setcap)
 	then
 		Info 1 " Allowing lower port numbers through setcap (needs privileges)"
 		$sudo_cmd "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc"
