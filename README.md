@@ -4,7 +4,7 @@
 
 **Bash script to install or upgrade the single-binary Caddy web server**
 
-* Version 0.13
+* Version 0.14
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)**
@@ -37,27 +37,28 @@ or run:
 
 `bash getcaddy -n`
 
-#### Installing getcaddy at `/usr/local/bin/getcaddy`:
+#### Installing *getcaddy* at `/usr/local/bin/getcaddy`:
 
-The `igetcaddy` script makes it slightly easier to install getcaddy.
-(The `getcaddy` script makes it somewhat easier to get Caddy, but much easier to upgrade it!)
+The `igetcaddy` script makes it somewhat easier to install getcaddy.
+(The `getcaddy` script makes it easy to download Caddy,
+but much easier to check for upgrades and upgrade it!)
 
 `wget -qO- loof.bid/ig |bash`
 
 Or manually:
 
 ```
-sudo wget -qO /usr/local/bin/getcaddy loof.bid/ig
+sudo wget -qO /usr/local/bin/getcaddy loof.bid/gc
 chmod +x /usr/local/bin/getcaddy
 ```
 
-#### Installing Caddy by running from download (either with wget or curl):
+#### Installing *Caddy* by piping into bash (either with wget or curl):
 
 `  wget -qO- loof.bid/gc |bash [-s -- <commandline option>...]`
 
 `  curl -sL loof.bid/gc |bash [-s -- <commandline option>...]`
 
-#### Usage in crontab**:
+#### Usage in *crontab*:
 
 The first example can only be run with sufficient privileges:
 ```cron
@@ -70,5 +71,5 @@ Where `/INSTALL/PATH` is the directory location of the `getcaddy` script and
 An unprivileged user can run this, depending on where cron is sending output:
 ```cron
 # Check every day at noon for an updated Caddy and alerting admin if available
-0 12 * * 1 mess=$(/INSTALL/PATH/getcaddy -q -n && echo "New Caddy available!"
+0 12 * * 1 /INSTALL/PATH/getcaddy -q -n && echo "New Caddy version available!"
 ```

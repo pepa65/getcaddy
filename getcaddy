@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set +vx
-VERSION='0.13'
-# getcaddy v0.13
+VERSION=0.14
+# getcaddy v0.14
 # Caddy web server installer and upgrade script
 # Bash script to install the single-binary Caddy web server
 #
