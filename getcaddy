@@ -24,20 +24,20 @@ Help(){  # $1:optional message
 	cat <<-EOS
 		 $Y$SELF $VERSION
 		 Bash script to install and upgrade the single-binary Caddy web server$X
-		 Usage: $Ybash $SELF$X $C[-b|--bw] [-h|--help] [-n|--nogo] [-f|--force] $G[<plugins>]$X
-		             [ $C[-a|--arch <arch>] [-o|--os <os>] -l|--location$X $G<location>$X ]
-		   $C-n/--nogo:$X    List available plugins, architectures and oses,
+		 Usage: $Ybash $SELF [$C-b|--bw$X] [$C-h|--help$X] [$C-n|--nogo$X] [$C-f|--force$X] [$G<plugins>$X]
+		             [ [$C-a|--arch $G<arch>$X] [$C-o|--os $G<os>$X] $C-l|--location $G<location>$X ]
+		   $C-n/--nogo$X:    List available plugins, architectures and oses,
 		                 does not download, backup or install the caddy binary
-		   $C-q/--quiet:$X   Surpress output except for error messages
-		   $C-f/--force:$X   Force installation when the latest version is already installed
-		   $G<plugins>:$X    all | none | [,]<plugin>[,<plugin>]...
+		   $C-q/--quiet$X:   Surpress output except for error messages
+		   $C-f/--force$X:   Force installation when the latest version is already installed
+		   $G<plugins>$X:    all | none | [,]<plugin>[,<plugin>]...
 		                 Previously installed plugins will be installed again if empty
 		                 or the listed plugins will be added if started with a comma
-		   $G<location>:$X   The install location (path + filename) for the Caddy binary
-		   $G<arch>, <os>:$X Sets the architecture and the OS; <filepath> must then
+		   $G<location>$X:   The install location (path + filename) for the Caddy binary
+		   $G<arch>, <os>$X: Sets the architecture and the OS; <filepath> must then
 		                 also be set, and the downloaded binary will not be run
-		   $C-b/--bw:$X      Don't use colours in output
-		   $C-h/--help:$X    Display this help text
+		   $C-b/--bw$X:      Don't use colours in output
+		   $C-h/--help$X:    Display this help text
 		 Returns success when upgrade is possible or installation finishes successfully
 	EOS
 	[[ $1 ]] && echo -e "$1"
@@ -278,7 +278,7 @@ Getcaddy(){
 	if [[ $local_version ]]
 	then  # some sort of working binary found here
 		local caddy_backup="${caddy_loc}_$local_version"
-		Info 1 " Backing up $C$caddy_loc$X to $C$caddy_backup$X $R(needs privileges)$X"
+		Info 1 " Backing up $C$caddy_loc$X to $C$caddy_backup $R(needs privileges)$X"
 		$sudo_cmd cp -v --backup=numbered "$caddy_loc" "$caddy_backup" ||
 			Exit "Couldn't backup $C$caddy_loc$R to $C$caddy_backup" 20
 	fi
