@@ -4,7 +4,7 @@
 
 **Bash script to install or upgrade the single-binary Caddy web server**
 
-* Version 0.14
+* Version 0.15
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)**
@@ -12,12 +12,13 @@
 * Download the igetcaddy script: **[loof.bid/ig](https://loof.bid/ig)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-Requires: **bash, mv, rm, type, sed, grep, pgrep, curl/wget, tar**
+Requires: **bash, mv, rm, true, sed, grep, pgrep, curl/wget, tar**
 (or **unzip** for OSX and Windows binaries)
+Optional: **gpg** (for verifying downloaded binary)
 
 **Usage**:
 ```
-bash getcaddy [-h|--help] [-n|--nogo] [-f|--force] [<pluginlist>]
+bash getcaddy [-b|--bw] [-h|--help] [-n|--nogo] [-f|--force] [<plugins>]
               [ [-a|--arch <arch>] [-o|--os <os>] -l|--location <caddy> ]
   -n/--nogo:    List available plugins, architectures and oses,
                 does not download, backup or install the Caddy binary
@@ -29,6 +30,7 @@ bash getcaddy [-h|--help] [-n|--nogo] [-f|--force] [<pluginlist>]
   <location>:   The install location (path + filename) for the Caddy binary
   <arch>, <os>: Sets the architecture and the OS; <filepath> must then
                 also be set, and the downloaded binary will not be run
+  -b/--bw:      Don't use colours in output
   -h/--help:    Display this help text
 Returns success when upgrade is possible or installation finishes successfully
 ```
