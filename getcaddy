@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set +vx
-VERSION=0.15
-# getcaddy v0.15
+VERSION=0.16
+# getcaddy v0.16
 # Caddy web server installer and upgrade script
-# Bash script to install the single-binary Caddy web server
+# Bash script to install the single-binary Caddy web server, personal license
 #
 # Full list of currently available plugins: https://caddyserver.com/download
 # or run: bash getcaddy -n
@@ -242,7 +242,7 @@ Getcaddy(){
 	type -p gpg >/dev/null 2>&1 && gpg=1
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	local caddy_dl="$tmp/caddy-$caddy_os-$caddy_arch$caddy_ext"
-	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?plugins=$plugins"
+	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?license=personal&plugins=$plugins"
 	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?plugins=$plugins"
 	Info 1 " URL: $C$caddy_url$X"
 	$dl_cmd "$caddy_url" >"$caddy_dl"
