@@ -5,13 +5,14 @@
 **Bash script to install or upgrade the single-binary Caddy web server, personal license**
 
 Caddy binaries as downloaded with this script are no longer Free software; their
-usage is restricted as per [https://caddyserver.com/pricing]. Version 0.10.9 of the
-Caddy binary is adware as well, which should be fixed in the next version.
+usage is restricted as per
+[caddyserver.com/pricing](https://caddyserver.com/pricing).
+Version 0.10.9 of the Caddy binary is adware as well,
+which should be fixed in the next version.
 
 * Version 0.17
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
-* Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
-* Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)**
+* Github page for getcaddy: **[github.com/pepa65/getcaddy](https://github.com/pepa65/getcaddy)**
 * Download the getcaddy script: **[loof.bid/gc](https://loof.bid/gc)**
 * Download the igetcaddy script: **[loof.bid/ig](https://loof.bid/ig)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
