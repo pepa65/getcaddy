@@ -4,7 +4,11 @@
 
 **Bash script to install or upgrade the single-binary Caddy web server, personal license**
 
-* Version 0.16
+Caddy binaries as downloaded with this script are no longer Free software; their
+usage is restricted as per [https://caddyserver.com/pricing]. Version 0.10.9 of the
+Caddy binary is adware as well, which should be fixed in the next version.
+
+* Version 0.17
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy.com: **[github.com/caddyserver/getcaddy.com](https://github.com/caddyserver/getcaddy.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy.com/tree/upgrade](https://github.com/pepa65/getcaddy.com/tree/upgrade)**
@@ -18,12 +22,11 @@ Optional: **gpg** (for verifying downloaded binary)
 
 **Usage**:
 ```
-bash getcaddy [-b|--bw] [-h|--help] [-n|--nogo] [-f|--force] [<plugins>]
+bash getcaddy [-b|--bw] [-h|--help] [-n|--nogo] [<plugins>]
               [ [-a|--arch <arch>] [-o|--os <os>] -l|--location <caddy> ]
   -n/--nogo:    List available plugins, architectures and oses,
                 does not download, backup or install the Caddy binary
   -q/--quiet:   Surpress output except for error messages
-  -f/--force:   Force installation when the latest version is already installed
   <pluginlist>: all | none | [,]<plugin>[,<plugin>]...
                 Previously installed plugins will be installed again if empty
                 or the listed plugins will be added if started with a comma
@@ -32,7 +35,7 @@ bash getcaddy [-b|--bw] [-h|--help] [-n|--nogo] [-f|--force] [<plugins>]
                 also be set, and the downloaded binary will not be run
   -b/--bw:      Don't use colours in output
   -h/--help:    Display this help text
-Returns success when upgrade is possible or installation finishes successfully
+Returns success when upgrade possible or install successful
 ```
 Full list of currently available plugins: [caddyserver.com/download](https://caddyserver.com/download)
 or run:
