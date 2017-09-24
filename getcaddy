@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set +vx
-VERSION=0.17
-# getcaddy v0.17
+VERSION=0.18
+# getcaddy v0.18
 # Caddy web server installer and upgrade script
 # Bash script to install the single-binary Caddy web server, personal license
 #
@@ -181,8 +181,11 @@ Getcaddy(){
 	then
 		Info 1 "Not a binary at $R$caddy_loc$X"
 	else
-		local_version=$("$caddy_loc" --version) && local_version=${local_version#Caddy }
+		local_version=$("$caddy_loc" -version) &&
+			local_version=${local_version#Caddy } &&
+			local_version=${local_version%% *}
 		[[ -z $local_version ]] && Exit "error getting local caddy version" 14
+
 		Info 1 "Local install of Caddy $Y$local_version$X in $G$caddy_loc$X"
 	fi
 
@@ -200,7 +203,7 @@ Getcaddy(){
 
 	# Weed the reported installed plugins
 	local install plugin local_valid
-	local local_plugins=$("$caddy_loc" --plugins 2>/dev/null |grep -v ':')
+	local local_plugins=$("$caddy_loc" -plugins 2>/dev/null |grep -v ':')
 	for plugin in $local_plugins
 	do
 		[[ ,$valid_plugins, = *,$plugin,* ]] && local_valid+=",$plugin"

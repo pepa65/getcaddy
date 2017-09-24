@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# mkplugins - Enumerate all Caddy plugins locations for inluding in build
+# Required: coreutils(mktemp cut rm) wget sed
+
+tmpfile=$(mktemp)
+wget -qO "$tmpfile" caddyserver.com/api/download-page
+{
+	echo "// Uncomment all plugins that are needed and save & exit"
+	echo -e "package caddymain\n\nimport ("
+	sed 's@{@\n{@g' "$tmpfile" |
+		grep -o ImportPath.* |
+		cut -d '"' -f3 |
+		sed 's@^.*$@//\t_ "\0"@'
+	echo ")"
+} >plugins.go
+rm "$tmpfile"

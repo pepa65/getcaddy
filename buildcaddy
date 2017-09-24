@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# buildcaddy - Build caddy with plugins from source
+# Required: go coreutils(cd) sed $EDITOR/nano mkplugins[script]
+
+Try(){
+	! $* &&
+		echo "ERROR: '$*' failed" &&
+		exit 2
+}
+
+[[ -z $GOPATH ]] &&
+	echo "ERROR: GOPATH not set, golang not properly installed" &&
+	exit 1
+Try cd $GOPATH/src
+Try go get -u github.com/mholt/caddy
+Try go get -u github.com/caddyserver/builds
+Try cd $GOPATH/src/github.com/mholt/caddy
+Try sed -i 's@caddy.AppName@"CaddyPP"@' caddyhttp/httpserver/server.go
+Try bash mkplugins $GOPATH/src/github.com/mholt/caddy/caddy/caddymain/plugins.go
+editor=${EDITOR:-nano}
+$editor $GOPATH/src/github.com/mholt/caddy/caddy/caddymain/plugins.go
+Try go get -u -v -f ...
+Try go run build.go goos=linux
+sudo cp caddy /usr/local/bin/
+
+exit 0

@@ -10,14 +10,14 @@ usage is restricted as per
 Version 0.10.9 of the Caddy binary is adware as well,
 which should be fixed in the next version.
 
-* Version 0.17
+* Version 0.18
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy](https://github.com/pepa65/getcaddy)**
 * Download the getcaddy script: **[loof.bid/gc](https://loof.bid/gc)**
 * Download the igetcaddy script: **[loof.bid/ig](https://loof.bid/ig)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-Requires: **bash, mv, rm, true, sed, grep, pgrep, curl/wget, tar**
+Requires: **bash coreutils(mv rm true) sed grep procps(pgrep) curl/wget tar**
 (or **unzip** for OSX and Windows binaries)
 Optional: **gpg** (for verifying downloaded binary)
 
@@ -79,3 +79,10 @@ An unprivileged user can run this, depending on where cron is sending output:
 # Check every day at noon for an updated Caddy and alerting admin if available
 0 12 * * 1 /INSTALL/PATH/getcaddy -q -n && echo "New Caddy version available!"
 ```
+
+# buildcaddy
+
+**Build caddy with plugins from source**
+
+Requires: **bash go wget coreutils(rm cd mktemp cut) sed grep $EDITOR/nano 
+mkplugins[script]**
