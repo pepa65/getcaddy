@@ -1,0 +1,4 @@
+#!/bin/bash
+# modcaddy - Modify caddy sources
+
+sed -i '/caddy.AppName/d' caddyhttp/httpserver/server.go

@@ -24,10 +24,10 @@ Try cd "$gopath/src"
 Try go get -u github.com/mholt/caddy
 Try go get -u github.com/caddyserver/builds
 Try cd "$gopath/src/github.com/mholt/caddy"
-Try sed -i '/caddy.AppName/d' caddyhttp/httpserver/server.go
 Try bash "$pwd/mkplugins" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
 editor=${EDITOR:-nano}
 "$editor" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
+[[ -f modcaddy ]] && Try bash modcaddy
 Try go get -u -v -f ...
 Try go run build.go goos=linux
 Try mkdir -p "$caddy_loc"
