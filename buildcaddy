@@ -2,26 +2,35 @@
 
 # buildcaddy - Build caddy with plugins from source
 # Required: go coreutils(cd) sed $EDITOR/nano mkplugins[script]
+# Installing go:
+# - Download: wget https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz
+# - Install: sudo tar -C /usr/local -xf o1.9.linux-amd64.tar.gz
+# - Add to PATH: export PATH=$PATH:/usr/local/go/bin # in /etc/profile
+
+caddy_loc=/usr/local/bin
 
 Try(){
-	! $* &&
-		echo "ERROR: '$*' failed" &&
-		exit 2
+	echo "Trying '$*'"
+	$* && return
+	echo "ERROR: command failed, code: $?"
+	read -p "Enter to continue, Ctrl-C to exit"
+	return 1
 }
 
-[[ -z $GOPATH ]] &&
-	echo "ERROR: GOPATH not set, golang not properly installed" &&
-	exit 1
-Try cd $GOPATH/src
+[[ $GOPATH ]] && gopath=${GOPATH%%:*} || gopath=$HOME/go
+pwd=$PWD
+Try mkdir -p "$gopath/src"
+Try cd "$gopath/src"
 Try go get -u github.com/mholt/caddy
 Try go get -u github.com/caddyserver/builds
-Try cd $GOPATH/src/github.com/mholt/caddy
-Try sed -i 's@caddy.AppName@"CaddyPP"@' caddyhttp/httpserver/server.go
-Try bash mkplugins $GOPATH/src/github.com/mholt/caddy/caddy/caddymain/plugins.go
+Try cd "$gopath/src/github.com/mholt/caddy"
+Try sed -i '/caddy.AppName/d' caddyhttp/httpserver/server.go
+Try bash "$pwd/mkplugins" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
 editor=${EDITOR:-nano}
-$editor $GOPATH/src/github.com/mholt/caddy/caddy/caddymain/plugins.go
+"$editor" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
 Try go get -u -v -f ...
 Try go run build.go goos=linux
-sudo cp caddy /usr/local/bin/
+Try mkdir -p "$caddy_loc"
+Try sudo /bin/cp -f caddy "$caddy_loc/"
 
 exit 0
