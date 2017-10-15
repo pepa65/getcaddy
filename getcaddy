@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set +vx
-VERSION=0.18
-# getcaddy v0.18
+VERSION=0.19
+# getcaddy v0.19
 # Caddy web server installer and upgrade script
 # Bash script to install the single-binary Caddy web server, personal license
 #
@@ -288,32 +288,36 @@ Getcaddy(){
 
 	local sudo_cmd
 	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd='sudo'
-	[[ $sudo_cmd ]] && ! $sudo_cmd true && Exit "Needs root privileges" 17
+	[[ $sudo_cmd ]] && ! "$sudo_cmd" true && Exit "Needs root privileges" 17
 
 	# Back up file at install location
 	if [[ $local_version ]]
 	then  # some sort of working binary found here
 		local caddy_backup="${caddy_loc}_$local_version"
 		Info 1 " Backing up $G$caddy_loc$X to $G$caddy_backup $R(needs privileges)$X"
-		$sudo_cmd cp -v --backup=numbered "$caddy_loc" "$caddy_backup" ||
+		"$sudo_cmd" cp -v --backup=numbered "$caddy_loc" "$caddy_backup" ||
 			Exit "Couldn't backup $G$caddy_loc$R to $G$caddy_backup" 18
 	fi
 
-	# Move the new binary in place and restart it
+	# Move the new binary in place
 	Info 1 " Putting caddy in $G$caddy_loc $R(needs privileges)$X"
-	$sudo_cmd mv "$tmp/$caddy_bin" "$caddy_loc" ||
+	"$sudo_cmd" mv "$tmp/$caddy_bin" "$caddy_loc" ||
 		Exit "Couldn't move $G$tmp/$caddy_bin$R to $Y$caddy_loc" 19
+	"$sudo_cmd" chown --reference="$caddy_backup" "$caddy_loc"
+	# Allow lower port numbers to be used by all users
 	local setcap_cmd
 	if ((!norun)) && setcap_cmd=$(PATH=$PATH:/sbin type -p setcap)
 	then
 		Info 1 " Allowing lower port numbers through setcap $R(needs privileges)$X"
-		$sudo_cmd "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc" ||
+		"$sudo_cmd" "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc" ||
 			Exit "Setcap command to allow lower port numbers to be used failed" 20
 	fi
+
+	# Restarting Caddy
 	if ((!norun && caddy_pid))
 	then
 		Info 1 " Restarting Caddy $R(needs privileges)$X"
-		$sudo_cmd kill -USR1 $caddy_pid || Exit "Couldn't restart Caddy" 21
+		"$sudo_cmd" kill -USR1 $caddy_pid || Exit "Couldn't restart Caddy" 21
 	fi
 
 	# Check intallation if arch/os not set

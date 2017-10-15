@@ -1,23 +1,22 @@
 # getcaddy
 
-### Caddy web server installer and upgrade script
+### Caddy web server personal edition installer and upgrade script
 
 **Bash script to install or upgrade the single-binary Caddy web server, personal license**
 
-Caddy binaries as downloaded with this script are no longer Free software; their
+*Caddy binaries as downloaded with this script are no longer Free software; their
 usage is restricted as per
 [caddyserver.com/pricing](https://caddyserver.com/pricing).
-Version 0.10.9 of the Caddy binary is adware as well,
-which should be fixed in the next version.
+Version 0.10.9 of the Caddy binary was adware, but no other versions so far.*
 
-* Version 0.18
+* Version 0.19
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy](https://github.com/pepa65/getcaddy)**
 * Download the getcaddy script: **[loof.bid/gc](https://loof.bid/gc)**
 * Download the igetcaddy script: **[loof.bid/ig](https://loof.bid/ig)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-Requires: **bash coreutils(mv rm true) sed grep procps(pgrep) curl/wget tar**
+Required: **bash coreutils(mv rm true) sed grep procps(pgrep) curl/wget tar**
 (or **unzip** for OSX and Windows binaries)
 Optional: **gpg** (for verifying downloaded binary)
 
