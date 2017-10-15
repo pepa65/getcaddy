@@ -12,8 +12,8 @@ Version 0.10.9 of the Caddy binary was adware, but no other versions so far.*
 * Version 0.19
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy](https://github.com/pepa65/getcaddy)**
-* Download the getcaddy script: **[loof.bid/gc](https://loof.bid/gc)**
-* Download the igetcaddy script: **[loof.bid/ig](https://loof.bid/ig)**
+* Download the getcaddy script: **[4e4.win/gc](https://4e4.win/gc)**
+* Download the igetcaddy script: **[4e4.win/ig](https://4e4.win/ig)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
 Required: **bash coreutils(mv rm true) sed grep procps(pgrep) curl/wget tar**
@@ -48,20 +48,20 @@ The `igetcaddy` script makes it somewhat easier to install getcaddy.
 (The `getcaddy` script makes it easy to download Caddy,
 but much easier to check for upgrades and upgrade it!)
 
-`wget -qO- loof.bid/ig |bash`
+`wget -qO- 4e4.win/ig |bash`
 
 Or manually:
 
 ```
-sudo wget -qO /usr/local/bin/getcaddy loof.bid/gc
+sudo wget -qO /usr/local/bin/getcaddy 4e4.win/gc
 chmod +x /usr/local/bin/getcaddy
 ```
 
 #### Installing *Caddy* by piping into bash (either with wget or curl):
 
-`  wget -qO- loof.bid/gc |bash [-s -- <commandline option>...]`
+`  wget -qO- 4e4.win/gc |bash [-s -- <commandline option>...]`
 
-`  curl -sL loof.bid/gc |bash [-s -- <commandline option>...]`
+`  curl -sL 4e4.win/gc |bash [-s -- <commandline option>...]`
 
 #### Usage in *crontab*:
 
