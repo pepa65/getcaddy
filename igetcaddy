@@ -13,8 +13,10 @@ Igetcaddy(){
 	[[ $1 ]] && location=$1
 	getcaddy=$(wget -qO- 4e4.win/gc)
 	echo "Installing 'getcaddy' (requires privileges)"
-	echo "$getcaddy" |sudo tee "$location" >/dev/null
-	sudo chmod +x "$location"
+	echo "$getcaddy" |sudo tee "$location" >/dev/null &&
+		sudo chmod +x "$location" &&
+		echo "Installed 'getcaddy' in $location" ||
+		echo "ERROR: install not successfull"
 }
 
 Igetcaddy "$@"
