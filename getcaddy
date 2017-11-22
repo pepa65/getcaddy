@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -vx
+set +vx
 VERSION=0.20
 # getcaddy v0.20
 # Caddy web server installer and upgrade script
