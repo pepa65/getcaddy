@@ -17,8 +17,8 @@ VERSION=0.20
 # - Github page for getcaddy: //github.com/pepa65/getcaddy.com/tree/upgrade
 # - Download the getcaddy script: //4e4.win/gc
 # - Getcaddy issues: //github.com/pepa65/getcaddy.com/issues
-# - Required: bash sudo mv rm type cut sed grep pgrep curl/wget tar
-#   (or unzip for OSX and Windows binaries)
+# - Required: bash sudo coreutils(mv rm type cut readlink) sed grep pgrep
+#   curl/wget tar (or unzip for OSX and Windows binaries)
 
 Help(){  # $1:optional message
 	cat <<-EOS
@@ -159,14 +159,13 @@ Getcaddy(){
 	Info 0 "Latest version:$A Caddy $latest_version$X"
 
 	# Determine installed location
-	local proc caddy_pid
+	local caddy_pid
 	if [[ $caddy_loc ]]
 	then  # specified with -l/--location: force that install location
 		[[ ${caddy_loc:0:1} = / ]] || caddy_loc="$PWD/$caddy_loc"
-	elif proc=$(pgrep -nax "$caddy_bin")
+	elif caddy_pid=$(pgrep -nx "$caddy_bin")
 	then  # most recent match if running
-		caddy_pid=$(cut -d' ' -f1 <<<"$proc")  # pid
-		caddy_loc=$(cut -d' ' -f2 <<<"$proc")  # location of running binary
+		caddy_loc=$(readlink "/proc/$caddy_pid/exe")
 	else  # first caddy binary in PATH
 		caddy_loc=$(type -p "$caddy_bin")
 	fi
@@ -262,8 +261,8 @@ Getcaddy(){
 	type -p gpg >/dev/null 2>&1 && gpg=1
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	local caddy_dl="$tmp/caddy-$caddy_os-$caddy_arch$caddy_ext"
-	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?license=personal&plugins=$install"
-	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?plugins=$install"
+	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?license=personal&plugins=$install&access_codes="
+	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?license=personal&plugins=$install&access_codes="
 	Info 1 " URL: $G$caddy_url$X"
 	$dl_cmd "$caddy_url" >"$caddy_dl"
 	((gpg)) && $dl_cmd "$caddy_asc" >"$caddy_dl.asc"
