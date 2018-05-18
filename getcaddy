@@ -292,6 +292,7 @@ Getcaddy(){
 	fi
 
 	Info 1 " Extracting $G$caddy_dl$X to $G$tmp/$caddy_bin$X"
+	rm -f -- "$tmp/$caddy_bin"
 	case "$caddy_dl" in
 		*.zip)    unzip -o "$caddy_dl" "$caddy_bin" -d "$tmp/" ;;
 		*.tar.gz) tar -xzf "$caddy_dl" -C "$tmp/" "$caddy_bin" ;;
@@ -299,7 +300,7 @@ Getcaddy(){
 	rm -- "$caddy_dl"
 	chmod +x "$tmp/$caddy_bin"
 
-	local sudo_cmd
+	local sudo_cmd=
 	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd='sudo'
 	[[ $sudo_cmd ]] && ! "$sudo_cmd" true && Exit "Needs root privileges" 19
 
