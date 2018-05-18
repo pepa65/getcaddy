@@ -4,25 +4,24 @@
 
 **Bash script to install or upgrade the single-binary Caddy web server, personal license**
 
-*Caddy binaries as downloaded with this script are no longer Free software; their
-usage is restricted as per
+*Caddy binaries as downloaded with this script are no longer Free software;
+their usage is restricted as per
 [caddyserver.com/pricing](https://caddyserver.com/pricing).
 Version 0.10.9 of the Caddy binary was adware, but no other versions so far.*
 
-* Version 0.20
+* Version 0.21
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Github page for getcaddy: **[github.com/pepa65/getcaddy](https://github.com/pepa65/getcaddy)**
 * Download the getcaddy script: **[4e4.win/gc](https://4e4.win/gc)**
 * Download the igetcaddy script: **[4e4.win/ig](https://4e4.win/ig)**
 * Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
 
-Required: **bash coreutils(mv rm true) sed grep procps(pgrep) curl/wget tar**
-(or **unzip** for OSX and Windows binaries)
+Required: **bash sudo coreutils(mv rm type cut readlink true) sed grep procps(pgrep) curl/wget tar** (or **unzip** for OSX and Windows binaries)
 Optional: **gpg** (for verifying downloaded binary)
 
 **Usage**:
 ```
-bash getcaddy [-b|--bw] [-h|--help] [-n|--nogo] [<plugins>]
+getcaddy [-b|--bw] [-h|--help] [-n|--nogo] [-x|-optout] [<plugins>]
               [ [-a|--arch <arch>] [-o|--os <os>] -l|--location <caddy> ]
   -n/--nogo:    List available plugins, architectures and oses,
                 does not download, backup or install the Caddy binary
@@ -33,6 +32,7 @@ bash getcaddy [-b|--bw] [-h|--help] [-n|--nogo] [<plugins>]
   <location>:   The install location (path + filename) for the Caddy binary
   <arch>, <os>: Sets the architecture and the OS; <filepath> must then
                 also be set, and the downloaded binary will not be run
+  -x/--optout:  Don't participate in telemetry
   -b/--bw:      Don't use colours in output
   -h/--help:    Display this help text
 Returns success when upgrade possible or install successful

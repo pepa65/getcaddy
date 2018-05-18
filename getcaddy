@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set +vx
-VERSION=0.20
-# getcaddy v0.20
+VERSION=0.21
+# getcaddy v0.21
 # Caddy web server installer and upgrade script
 # Bash script to install the single-binary Caddy web server, personal license
 #
@@ -17,14 +17,15 @@ VERSION=0.20
 # - Github page for getcaddy: //github.com/pepa65/getcaddy.com/tree/upgrade
 # - Download the getcaddy script: //4e4.win/gc
 # - Getcaddy issues: //github.com/pepa65/getcaddy.com/issues
-# - Required: bash sudo coreutils(mv rm type cut readlink) sed grep pgrep
-#   curl/wget tar (or unzip for OSX and Windows binaries)
+# - Required: bash sudo coreutils(mv rm type cut readlink true) sed grep
+#   procps(pgrep) curl/wget tar (or unzip for OSX and Windows binaries)
+# - Optional: gpg (for verifying downloaded binary)
 
 Help(){  # $1:optional message
 	cat <<-EOS
 		 $A$SELF $VERSION
 		 Bash script to install the single-binary Caddy web server, personal license$X
-		 Usage: ${E}bash $SELF $X[$H-b|--bw$X] [$H-h|--help$X] [$H-n|--nogo$X] [$G<plugins>$X]
+		 Usage: ${E}$SELF $X[$H-b|--bw$X] [$H-h|--help$X] [$H-n|--nogo$X] [$H-x|--optout$X] [$G<plugins>$X]
 		             [ [$H-a|--arch $G<arch>$X] [$H-o|--os $G<os>$X] $H-l|--location $G<location>$X ]
 		   $H-n/--nogo$X:    List available plugins, architectures and OSes,
 		                 does not download, backup or install the caddy binary
@@ -35,6 +36,7 @@ Help(){  # $1:optional message
 		   $G<location>$X:   The install location (path + filename) for the Caddy binary
 		   $G<arch>, <os>$X: Sets the architecture and the OS; <filepath> must then
 		                 also be set, and the downloaded binary will not be run
+		   $H-x/--optout$X:  Don't participate in telemetry
 		   $H-b/--bw$X:      Don't use colours in output
 		   $H-h/--help$X:    Display this help text
 		 Returns success when upgrade possible (-n|--nogo) or install successful
@@ -71,13 +73,15 @@ Getcaddy(){
 	N=$'\e[37m' E=$'\e[35m' G=$'\e[32m' A=$'\e[33m' H=$'\e[36m' X=$'\e[39m'
 
 	# Process commandline options
-	local caddy_loc caddy_os caddy_arch nogo=0 quiet=0 norun=0 plugins help=0
+	local caddy_loc caddy_os caddy_arch plugins
+	local nogo=0 telemetry=on quiet=0 norun=0 help=0
 	while (($#))
 	do
 		case $1 in
 		-h|--help) help=1; shift ;;
 		-b|--bw) N= E= G= A= H= X= ; shift ;;
 		-n|--nogo) nogo=1; shift ;;
+		-x|--optout) telemetry=off; shift ;;
 		-q|--quiet) quiet=1; shift ;;
 		-l|--location) [[ $2 ]] && caddy_loc="$2" && shift 2 ||
 				Exit "must have the caddy install location after $A$1" 2
@@ -261,8 +265,8 @@ Getcaddy(){
 	type -p gpg >/dev/null 2>&1 && gpg=1
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	local caddy_dl="$tmp/caddy-$caddy_os-$caddy_arch$caddy_ext"
-	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?license=personal&plugins=$install&access_codes="
-	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?license=personal&plugins=$install&access_codes="
+	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?license=personal&telemetry=$telemetry&plugins=$install&access_codes="
+	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?license=personal&telemetry=$telemetry&plugins=$install&access_codes="
 	Info 1 " URL: $G$caddy_url$X"
 	$dl_cmd "$caddy_url" >"$caddy_dl"
 	((gpg)) && $dl_cmd "$caddy_asc" >"$caddy_dl.asc"
