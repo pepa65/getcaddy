@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # Install getcaddy: the Caddy web server installer and upgrade script
-# - Github page: //github.com/pepa65/getcaddy.com/tree/upgrade
+# - Gitlab page: //gitlab.com/pepa65/getcaddy.com/tree/upgrade
 # - Download this igetcaddy script: //4e4.win/ig
-# - Report issues: //github.com/pepa65/getcaddy.com/issues
+# - Report issues: //gitlab.com/pepa65/getcaddy.com/issues
 # - Required: bash, sudo, curl/wget
 # Usage: wget -qO- 4e4.win/ig |bash [-s <location>]
 #        Where <location is the path + filename of the getcaddy script

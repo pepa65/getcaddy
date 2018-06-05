@@ -11,10 +11,10 @@ Version 0.10.9 of the Caddy binary was adware, but no other versions so far.*
 
 * Version 0.21
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
-* Github page for getcaddy: **[github.com/pepa65/getcaddy](https://github.com/pepa65/getcaddy)**
+* Gitlab page for getcaddy: **[gitlab.com/pepa65/getcaddy](https://gitlab.com/pepa65/getcaddy)**
 * Download the getcaddy script: **[4e4.win/gc](https://4e4.win/gc)**
 * Download the igetcaddy script: **[4e4.win/ig](https://4e4.win/ig)**
-* Report issues: **[github.com/pepa65/getcaddy.com/issues](https://github.com/pepa65/getcaddy.com/issues)**
+* Report issues: **[gitlab.com/pepa65/getcaddy.com/issues](https://gitlab.com/pepa65/getcaddy.com/issues)**
 
 Required: **bash sudo coreutils(mv rm type cut readlink true) sed grep procps(pgrep) curl/wget tar** (or **unzip** for OSX and Windows binaries)
 Optional: **gpg** (for verifying downloaded binary)

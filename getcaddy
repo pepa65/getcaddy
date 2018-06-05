@@ -14,9 +14,9 @@ VERSION=0.21
 #
 # - Caddy homepage: //caddyserver.com
 # - Github page for getcaddy.com: //github.com/caddyserver/getcaddy.com
-# - Github page for getcaddy: //github.com/pepa65/getcaddy.com/tree/upgrade
+# - Gitlab page for getcaddy: //gitlab.com/pepa65/getcaddy
 # - Download the getcaddy script: //4e4.win/gc
-# - Getcaddy issues: //github.com/pepa65/getcaddy.com/issues
+# - Getcaddy issues: //gitlab.com/pepa65/getcaddy.com/issues
 # - Required: bash sudo coreutils(mv rm type cut readlink true) sed grep
 #   procps(pgrep) curl/wget tar (or unzip for OSX and Windows binaries)
 # - Optional: gpg (for verifying downloaded binary)
