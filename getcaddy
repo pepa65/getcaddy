@@ -265,8 +265,9 @@ Getcaddy(){
 	type -p gpg >/dev/null 2>&1 && gpg=1
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	local caddy_dl="$tmp/caddy-$caddy_os-$caddy_arch$caddy_ext"
-	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?license=personal&telemetry=$telemetry&plugins=$install&access_codes="
-	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?license=personal&telemetry=$telemetry&plugins=$install&access_codes="
+	local qs="license=personal&plugins=$install&telemetry=$telemetry&access_codes="
+	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?$qs"
+	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?$qs"
 	Info 1 " URL: $G$caddy_url$X"
 	$dl_cmd "$caddy_url" >"$caddy_dl"
 	((gpg)) && $dl_cmd "$caddy_asc" >"$caddy_dl.asc"
@@ -275,14 +276,19 @@ Getcaddy(){
 	if ((gpg))
 	then
 		local caddy_pgp="65760C51EDEA2017CEA2CA15155B6D79CA56EA34"
-		local keyserver="keyserver.ubuntu.com"
-		local tmpkeyring=$(mktemp)
+		local keyservers="pool.sks-keyservers.net ha.pool.sks-keyservers.net hkps.pool.sks-keyservers.net keyserver.ubuntu.com"
+		local tmpkeyring=$(mktemp) nokeyservers=1
 		gpg -q --batch --export $caddy_pgp >"$tmpkeyring"
-		! gpg --keyserver $keyserver --recv-keys $caddy_pgp &>/dev/null &&
-			Exit "Keyserver $keyserver not available or key $caddy_pgp invalid" 17
-		#! gpg -q --batch --verify "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
-		! gpg -q --batch --verify --no-default-keyring --keyring "$tmpkeyring" --\
-				"$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
+		for keyserver in $keyservers
+		do
+			gpg --keyserver $keyserver --recv-keys $caddy_pgp &>/dev/null &&
+				nokeyservers=0 && break
+			Info 1 " Keyserver $keyserver not available"
+		done
+		((nokeyservers)) &&
+			Exit "No keyservers available or key $caddy_pgp invalid" 17
+		! gpg -q --batch --verify --no-default-keyring --keyring "$tmpkeyring" \
+				-- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
 			rm -- "$caddy_dl.asc" "$tmpkeyring" &&
 			Exit "download verification failed" 18
 		rm -- "$caddy_dl.asc"	"$tmpkeyring"
