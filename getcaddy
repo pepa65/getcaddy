@@ -153,7 +153,7 @@ Getcaddy(){
 
 	# Find the curl or wget binaries
 	local dl_cmd
-	! dl_cmd="$(type -p curl) -fsSL" && ! dl_cmd="$(type -p wget) -qO-" &&
+	! dl_cmd="$(type -P curl) -fsSL" && ! dl_cmd="$(type -P wget) -qO-" &&
 		Exit "could not find$A curl$E or$A wget" 14
 
 	# Find latest version
@@ -171,7 +171,7 @@ Getcaddy(){
 	then  # most recent match if running
 		caddy_loc=$(readlink "/proc/$caddy_pid/exe")
 	else  # first caddy binary in PATH
-		caddy_loc=$(type -p "$caddy_bin")
+		caddy_loc=$(type -P "$caddy_bin")
 	fi
 
 	# determine first-time install location
@@ -262,7 +262,7 @@ Getcaddy(){
 
 	## Download and extract
 	local tmp gpg=0
-	type -p gpg >/dev/null 2>&1 && gpg=1
+	type -P gpg >/dev/null 2>&1 && gpg=1
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	local caddy_dl="$tmp/caddy-$caddy_os-$caddy_arch$caddy_ext"
 	local qs="license=personal&plugins=$install&telemetry=$telemetry&access_codes="
@@ -328,7 +328,7 @@ Getcaddy(){
 		"$sudo_cmd" chown --reference="$caddy_backup" "$caddy_loc"
 	# Allow lower port numbers to be used by all users
 	local setcap_cmd
-	if ((!norun)) && setcap_cmd=$(PATH=$PATH:/sbin type -p setcap)
+	if ((!norun)) && setcap_cmd=$(PATH=$PATH:/sbin type -P setcap)
 	then
 		Info 1 " Allowing lower port numbers through setcap $E(needs privileges)$X"
 		"$sudo_cmd" "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc" ||
