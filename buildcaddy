@@ -24,13 +24,15 @@ Try cd "$gopath/src"
 Try go get -u github.com/mholt/caddy
 Try go get -u github.com/caddyserver/builds
 Try cd "$gopath/src/github.com/mholt/caddy"
+# Generate current plugins list
 Try bash "$pwd/mkplugins" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
+# Uncomment the desired plugins
 editor=${EDITOR:-nano}
 "$editor" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
 [[ -f modcaddy ]] && Try bash modcaddy
 Try go get -u -v -f ...
 Try go run build.go goos=linux
 Try mkdir -p "$caddy_loc"
-Try sudo /bin/cp -f caddy "$caddy_loc/"
+Try sudo /bin/cp -f caddy/caddy "$caddy_loc/"
 
 exit 0

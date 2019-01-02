@@ -290,7 +290,7 @@ Getcaddy(){
 		! gpg -q --batch --verify --no-default-keyring --keyring "$tmpkeyring" \
 				-- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
 			rm -- "$caddy_dl.asc" "$tmpkeyring" &&
-			Exit "download verification failed" 18
+			Exit "download verification failed, perhaps try again" 18
 		rm -- "$caddy_dl.asc"	"$tmpkeyring"
 		Info 1 " Downloaded file verified:$G OK$X"
 	else
