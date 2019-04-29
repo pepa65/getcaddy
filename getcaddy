@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set +vx
-VERSION=0.21
-# getcaddy v0.21
+VERSION=0.22
+# getcaddy v0.22
 # Caddy web server installer and upgrade script
 # Bash script to install the single-binary Caddy web server, personal license
 #
@@ -189,7 +189,7 @@ Getcaddy(){
 		Info 1 "Not a binary at $E$caddy_loc$X"
 	else
 		local_version=$("$caddy_loc" -version) &&
-			local_version=${local_version#Caddy } &&
+			local_version=${local_version#Caddy v} &&
 			local_version=${local_version%% *}
 		[[ -z $local_version ]] && Exit "error getting local caddy version" 15
 
@@ -206,7 +206,7 @@ Getcaddy(){
 	# Determine valid plugins
 	local valid_plugins=$(grep -o ',"Name":"[a-z0-9.]*","Type":' <<<"$dl_info" |
 			sed -e 's@^,"Name":"@@' -e 's@".*@@')  # has newlines
-	valid_plugins=$(sed 's@ @,@g' <<<$valid_plugins)  # no quotes replaces newlines
+	valid_plugins=${valid_plugins//$'\n'/,}
 
 	# Weed the reported installed plugins
 	local install plugin local_valid
@@ -216,7 +216,7 @@ Getcaddy(){
 		[[ ,$valid_plugins, = *,$plugin,* ]] && local_valid+=",$plugin"
 	done
 	local_valid=${local_valid:1}
-
+echo $valid_plugins
 	case $plugins in
 	all) install=$valid_plugins ;;
 	none) install= ;;
@@ -232,7 +232,6 @@ Getcaddy(){
 		install=${install:1}
 		invalid=${invalid:1}
 	esac
-
 	# report back, exit if nogo
 	local n_valid=$(Count $valid_plugins)
 	Info 0 "$A$n_valid$X latest valid plugins: $H$(Sort $valid_plugins)$X"
@@ -249,6 +248,7 @@ Getcaddy(){
 		Info 1 "$A$n_install$X plugins to install: $H$installs$X" ||
 		Info 1 "No plugins to install"
 	Info 1 -n "${A}Caddy $latest_version$X for $G$caddy_os/$caddy_arch$A "
+	echo "[$latest_version=$local_version]"
 	if [[ $latest_version = $local_version ]]
 	then
 		Info 1 -n "already installed"
@@ -287,8 +287,9 @@ Getcaddy(){
 		done
 		((nokeyservers)) &&
 			Exit "No keyservers available or key $caddy_pgp invalid" 17
-		! gpg -q --batch --verify --no-default-keyring --keyring "$tmpkeyring" \
-				-- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
+		#! gpg -q --batch --verify --no-default-keyring --keyring "$tmpkeyring" \
+		#		-- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
+		! gpg -q --batch --verify -- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
 			rm -- "$caddy_dl.asc" "$tmpkeyring" &&
 			Exit "download verification failed, perhaps try again" 18
 		rm -- "$caddy_dl.asc"	"$tmpkeyring"
@@ -308,7 +309,9 @@ Getcaddy(){
 
 	local sudo_cmd=
 	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd='sudo'
-	[[ $sudo_cmd ]] && ! "$sudo_cmd" true && Exit "Needs root privileges" 19
+	[[ $sudo_cmd ]] &&
+		Info 1 " Testing privileges for executing $E(needs privileges)$X" &&
+		! "$sudo_cmd" true && Exit "Needs root privileges" 19
 
 	# Back up file at install location
 	local caddy_backup
@@ -325,6 +328,7 @@ Getcaddy(){
 	"$sudo_cmd" mv "$tmp/$caddy_bin" "$caddy_loc" ||
 		Exit "Couldn't move $G$tmp/$caddy_bin$E to $A$caddy_loc" 21
 	[[ $caddy_backup ]] &&
+		Info 1 " Adjusting permissions on $G$caddy_loc $E(needs privileges)$X" &&
 		"$sudo_cmd" chown --reference="$caddy_backup" "$caddy_loc"
 	# Allow lower port numbers to be used by all users
 	local setcap_cmd

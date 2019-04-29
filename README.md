@@ -9,7 +9,7 @@ their usage is restricted as per
 [caddyserver.com/pricing](https://caddyserver.com/pricing).
 Version 0.10.9 of the Caddy binary was adware, but no other versions so far.*
 
-* Version 0.21
+* Version 0.22
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
 * Gitlab page for getcaddy: **[gitlab.com/pepa65/getcaddy](https://gitlab.com/pepa65/getcaddy)**
 * Download the getcaddy script: **[4e4.win/gc](https://4e4.win/gc)**
