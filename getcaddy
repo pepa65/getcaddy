@@ -216,7 +216,7 @@ Getcaddy(){
 		[[ ,$valid_plugins, = *,$plugin,* ]] && local_valid+=",$plugin"
 	done
 	local_valid=${local_valid:1}
-echo $valid_plugins
+
 	case $plugins in
 	all) install=$valid_plugins ;;
 	none) install= ;;
@@ -248,7 +248,7 @@ echo $valid_plugins
 		Info 1 "$A$n_install$X plugins to install: $H$installs$X" ||
 		Info 1 "No plugins to install"
 	Info 1 -n "${A}Caddy $latest_version$X for $G$caddy_os/$caddy_arch$A "
-	echo "[$latest_version=$local_version]"
+
 	if [[ $latest_version = $local_version ]]
 	then
 		Info 1 -n "already installed"
