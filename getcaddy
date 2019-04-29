@@ -265,7 +265,7 @@ Getcaddy(){
 	type -P gpg >/dev/null 2>&1 && gpg=1
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	local caddy_dl="$tmp/caddy-$caddy_os-$caddy_arch$caddy_ext"
-	local qs="license=personal&plugins=$install&telemetry=$telemetry&access_codes="
+	local qs="license=personal&plugins=$install&access_codes=&telemetry=$telemetry"
 	local caddy_url="https://caddyserver.com/download/$caddy_os/$caddy_arch?$qs"
 	local caddy_asc="https://caddyserver.com/download/$caddy_os/$caddy_arch/signature?$qs"
 	Info 1 " URL: $G$caddy_url$X"

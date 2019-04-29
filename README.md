@@ -4,10 +4,9 @@
 
 **Bash script to install or upgrade the single-binary Caddy web server, personal license**
 
-*Caddy binaries as downloaded with this script are no longer Free software;
-their usage is restricted as per
-[caddyserver.com/pricing](https://caddyserver.com/pricing).
-Version 0.10.9 of the Caddy binary was adware, but no other versions so far.*
+*Caddy binaries before version 1.0.0 (starting with 0.10.9) were no longer Free software;
+this has been resolved, and the binaries are open source again, starting with 1.0.0
+(Only version 0.10.9 of the Caddy binary was adware.)*
 
 * Version 0.22
 * Caddy home page: **[caddyserver.com](https://caddyserver.com)**
