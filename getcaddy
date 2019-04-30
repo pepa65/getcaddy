@@ -263,6 +263,7 @@ Getcaddy(){
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	if ((make))
 	then ## build locally
+		! type -p buildcaddy && Exit "Script 'buildcaddy' not in PATH" 17
 		local p=,
 		[[ $installs ]] && p=${installs// /,}
 		CADDY_TELEMETRY=$telemetry buildcaddy $p $caddy_os $caddy_arch $caddy_arm
@@ -293,12 +294,12 @@ Getcaddy(){
 				Info 1 " Keyserver $keyserver not available"
 			done
 			((nokeyservers)) &&
-				Exit "No keyservers available or key $caddy_pgp invalid" 17
+				Exit "No keyservers available or key $caddy_pgp invalid" 18
 			#! gpg -q --batch --verify --no-default-keyring --keyring "$tmpkeyring" \
 			#		-- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
 			! gpg -q --batch --verify -- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
 				rm -- "$caddy_dl.asc" "$tmpkeyring" &&
-				Exit "download verification failed, perhaps try again" 18
+				Exit "download verification failed, perhaps try again" 19
 			rm -- "$caddy_dl.asc"	"$tmpkeyring"
 			Info 1 " Downloaded file verified:$G OK$X"
 		else
@@ -319,7 +320,7 @@ Getcaddy(){
 	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd='sudo'
 	[[ $sudo_cmd ]] &&
 		Info 1 " Testing privileges for executing $E(needs privileges)$X" &&
-		! "$sudo_cmd" true && Exit "Needs root privileges" 19
+		! "$sudo_cmd" true && Exit "Needs root privileges" 20
 
 	# Back up file at install location
 	local caddy_backup
@@ -328,13 +329,13 @@ Getcaddy(){
 		caddy_backup="${caddy_loc}_$local_version"
 		Info 1 " Backing up $G$caddy_loc$X to $G$caddy_backup $E(needs privileges)$X"
 		"$sudo_cmd" cp -v --backup=numbered "$caddy_loc" "$caddy_backup" ||
-			Exit "Couldn't backup $G$caddy_loc$E to $G$caddy_backup" 20
+			Exit "Couldn't backup $G$caddy_loc$E to $G$caddy_backup" 21
 	fi
 
 	# Move the new binary in place
 	Info 1 " Putting caddy in $G$caddy_loc $E(needs privileges)$X"
 	"$sudo_cmd" mv "$tmp/$caddy_bin" "$caddy_loc" ||
-		Exit "Couldn't move $G$tmp/$caddy_bin$E to $A$caddy_loc" 21
+		Exit "Couldn't move $G$tmp/$caddy_bin$E to $A$caddy_loc" 22
 	[[ $caddy_backup ]] &&
 		Info 1 " Adjusting permissions on $G$caddy_loc $E(needs privileges)$X" &&
 		"$sudo_cmd" chown --reference="$caddy_backup" "$caddy_loc"
@@ -344,14 +345,14 @@ Getcaddy(){
 	then
 		Info 1 " Allowing lower port numbers through setcap $E(needs privileges)$X"
 		"$sudo_cmd" "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc" ||
-			Exit "Setcap command to allow lower port numbers to be used failed" 22
+			Exit "Setcap command to allow lower port numbers to be used failed" 23
 	fi
 
 	# Restarting Caddy
 	if ((!norun && caddy_pid))
 	then
 		Info 1 " Restarting Caddy $E(needs privileges)$X"
-		"$sudo_cmd" kill -USR2 $caddy_pid || Exit "Couldn't restart Caddy" 23
+		"$sudo_cmd" kill -USR2 $caddy_pid || Exit "Couldn't restart Caddy" 24
 	fi
 
 	# Check intallation if arch/os not set
