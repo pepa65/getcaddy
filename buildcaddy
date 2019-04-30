@@ -1,9 +1,11 @@
 #!/bin/bash
 
-# buildcaddy - Build caddy plus plugins
-# Usage: buildcaddy [<plugins>]
-#   <plugins> is a comma-separated list of caddy plugins
-# Required: coreutils(mktemp cut rm mv mkdir cd cat) wget grep sed
+# buildcaddy - Build caddy with plugins
+# Usage: buildcaddy [<plugins> [<os> [<arch> [<arm>]]]]
+#   <plugins> is a comma-separated list of caddy plugins, only put ','
+#     if os & arch & arm need to be specified
+# Required: go coreutils(mktemp cut rm mv mkdir cd cat) wget grep sed
+# If $CADDY_TELEMETRY is set and not 'on' then telemetry is turned off
 
 [[ $- = *i* ]] && echo -e "Run this as:\n  bash $0" && return 1
 
@@ -21,33 +23,40 @@ Plugins(){ # $1:plugins
 	done
 }
 
-Build(){
+Build(){ # $1:os $2:arch $3:arm
 	export O111MODULE=on
-	go mod init build
-	go build
-	mv build caddy
+	go mod init caddy
+	env GOOS=$1 GOARCH=$2 GOARM=$3 go build
+	#env GOOS=$1 GOARCH=$2 go build
 }
 
+telemetry=true
+[[ $CADDY_TELEMETRY && ! $CADDY_TELEMETRY = on ]] && telemetry=false
+plugins= os= arch= arm=
+[[ $1 ]] && plugins=$1
+[[ $2 ]] && os=$2
+[[ $3 ]] && arch=$3
+[[ $4 ]] && arm=$4
 dir="$(mktemp -d)" olddir="$PWD"
 trap "cd '$olddir'; rm -r '$dir'" QUIT EXIT
 mkdir "$dir/caddy"
 cd "$dir/caddy"
 
-cat <<-EOF >build.go
+cat <<-EOF >caddy.go
 	package main
 
 	import (
 	  "github.com/mholt/caddy/caddy/caddymain"
-	$(Plugins $1)
+	$(Plugins $plugins)
 	)
 
 	func main() {
-	  // caddymain.EnableTelemetry = false
+	  caddymain.EnableTelemetry = $telemetry
 	  caddymain.Run()
 	}
 EOF
 
-Build
+Build $os $arch $arm
 cd "$olddir"
 mv --backup=numbered "$dir/caddy" .
 
