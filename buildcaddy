@@ -1,38 +1,54 @@
 #!/bin/bash
 
-# buildcaddy - Build caddy with plugins from source
-# Required: go coreutils(cd) sed $EDITOR/nano mkplugins[script]
-# Installing go:
-# - Download: wget https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz
-# - Install: sudo tar -C /usr/local -xf o1.9.linux-amd64.tar.gz
-# - Add to PATH: export PATH=$PATH:/usr/local/go/bin # in /etc/profile
+# buildcaddy - Build caddy plus plugins
+# Usage: buildcaddy [<plugins>]
+#   <plugins> is a comma-separated list of caddy plugins
+# Required: coreutils(mktemp cut rm mv mkdir cd cat) wget grep sed
 
-caddy_loc=/usr/local/bin
+[[ $- = *i* ]] && echo -e "Run this as:\n  bash $0" && return 1
 
-Try(){
-	echo "Trying '$@'"
-	"$@" && return
-	echo "ERROR: command failed, code: $?"
-	read -p "Enter to continue, Ctrl-C to exit"
-	return 1
+Dl="caddyserver.com/api/download-page"
+
+Plugins(){ # $1:plugins
+	local i repo
+	wget -qO- "$Dl" |sed 's@{@\n{@g' >json
+	Repos=($(grep -o 'ImportPath.*' json |cut -d '"' -f3))
+	Names=($(grep -o ',"Name":"[a-z0-9.]*","Type":' json |cut -d '"' -f4))
+	for i in ${!Names[@]}
+	do
+		[[ ,$1, == *,${Names[i]},* ]] &&
+			echo "    _ \"${Repos[i]}\"" |sed 's@github.com/filebrowser/caddy@github.com/filebrowser/filebrowser@'
+	done
 }
 
-[[ $GOPATH ]] && gopath=${GOPATH%%:*} || gopath=$HOME/go
-pwd=$PWD
-Try mkdir -p "$gopath/src"
-Try cd "$gopath/src"
-Try go get -u github.com/mholt/caddy
-Try go get -u github.com/caddyserver/builds
-Try cd "$gopath/src/github.com/mholt/caddy"
-# Generate current plugins list
-Try bash "$pwd/mkplugins" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
-# Uncomment the desired plugins
-editor=${EDITOR:-nano}
-"$editor" "$gopath/src/github.com/mholt/caddy/caddy/caddymain/plugins.go"
-[[ -f modcaddy ]] && Try bash modcaddy
-Try go get -u -v -f ...
-Try go run build.go goos=linux
-Try mkdir -p "$caddy_loc"
-Try sudo /bin/cp -f caddy/caddy "$caddy_loc/"
+Build(){
+	export O111MODULE=on
+	go mod init build
+	go build
+	mv build caddy
+}
+
+dir="$(mktemp -d)" olddir="$PWD"
+trap "cd '$olddir'; rm -r '$dir'" QUIT EXIT
+mkdir "$dir/caddy"
+cd "$dir/caddy"
+
+cat <<-EOF >build.go
+	package main
+
+	import (
+	  "github.com/mholt/caddy/caddy/caddymain"
+	$(Plugins $1)
+	)
+
+	func main() {
+	  // caddymain.EnableTelemetry = false
+	  caddymain.Run()
+	}
+EOF
+
+Build
+cd "$olddir"
+mv --backup=numbered "$dir/caddy" .
 
 exit 0

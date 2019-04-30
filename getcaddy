@@ -68,7 +68,6 @@ Count(){ # $1:comma-separated-words
 }
 
 Getcaddy(){
-	SELF="${BASH_SOURCE##*/}"
 	# Colors: Normal Error Good Alert Highlight X:Cancel
 	N=$'\e[37m' E=$'\e[35m' G=$'\e[32m' A=$'\e[33m' H=$'\e[36m' X=$'\e[39m'
 
@@ -351,5 +350,6 @@ Getcaddy(){
 	exit 0
 }
 
+SELF="${BASH_SOURCE##*/}"
 [[ $- = *i* ]] && Help "$E To run this do:\n$G  bash $SELF$X" && return 1
 Getcaddy "$@"

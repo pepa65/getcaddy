@@ -5,8 +5,8 @@
 # - Download this igetcaddy script: //4e4.win/ig
 # - Report issues: //gitlab.com/pepa65/getcaddy.com/issues
 # - Required: bash, sudo, curl/wget
-# Usage: wget -qO- 4e4.win/ig |bash [-s <location>]
-#        Where <location is the path + filename of the getcaddy script
+# Usage: wget -qO- 4e4.win/ig |bash [-s <desired location>]
+#        Where <desired location is the path+filename for the getcaddy script
 
 Igetcaddy(){
 	location=/usr/local/bin/getcaddy
@@ -19,5 +19,6 @@ Igetcaddy(){
 		echo "ERROR: install not successfull"
 }
 
+[[ $- = *i* ]] && echo -e "Run as:\n   bash $0" && return 1
 Igetcaddy "$@"
 exit 0

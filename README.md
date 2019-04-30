@@ -15,8 +15,8 @@ this has been resolved, and the binaries are open source again, starting with 1.
 * Download the igetcaddy script: **[4e4.win/ig](https://4e4.win/ig)**
 * Report issues: **[gitlab.com/pepa65/getcaddy.com/issues](https://gitlab.com/pepa65/getcaddy.com/issues)**
 
-Required: **bash sudo coreutils(mv rm type cut readlink true) sed grep procps(pgrep) curl/wget tar** (or **unzip** for OSX and Windows binaries)
-Optional: **gpg** (for verifying downloaded binary)
+* Required: **bash sudo coreutils(mv rm type cut readlink true) sed grep procps(pgrep) curl/wget tar** (or **unzip** for OSX and Windows binaries)
+* Optional: **gpg** (for verifying downloaded binary)
 
 **Usage**:
 ```
@@ -80,7 +80,7 @@ An unprivileged user can run this, depending on where cron is sending output:
 
 # buildcaddy
 
-**Build caddy with plugins from source**
+### Build caddy with plugins from source
 
-Requires: **bash go wget coreutils(rm cd mktemp cut) sed grep $EDITOR/nano 
-mkplugins[script]**
+* Usage: `buildcaddy [<comma-separated-plugins>]`
+* Required: **bash go coreutils(mktemp cut rm mv mkdir cd cat) wget grep sed**
