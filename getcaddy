@@ -90,20 +90,22 @@ Getcaddy(){
 				Exit "remove $A$caddy_loc$E manually first: no ordinary file" 3 ;;
 		-o|--os) [[ $2 ]] && caddy_os="$2" && shift 2 && norun=1 ||
 				Exit "must have OS after $A$1" 4 ;;
+		-a|--arch) [[ $2 ]] && caddy_arch="$2" && shift 2 && norun=1 ||
+				Exit "must have architecture after $A$1" 5 ;;
 		-A|--arm) [[ $2 ]] && caddy_arm="$2" && shift 2 && norun=1 ||
-				Exit "must have arm version after $A$1" 5 ;;
+				Exit "must have arm version after $A$1" 6 ;;
 		*) # this must be the plugin list
 			[[ ${1:0:1} = "-" ]] &&
-				Exit "unknown commandline option: $A$1" 6
+				Exit "unknown commandline option: $A$1" 7
 			[[ $plugins ]] &&
-				Exit "plugins should be separated only by commas: $A$plugins $*" 7
+				Exit "plugins should be separated only by commas: $A$plugins $*" 8
 			plugins=$1
 			shift ;;
 		esac
 	done
 	((help)) && Help && exit 0
 	((norun)) && [[ -z $caddy_loc ]] &&
-		Exit "must set location when setting arch or os" 8
+		Exit "must set location when setting arch or os" 9
 
 	# Determine OS, binary name and package type
 	local caddy_ext='.tar.gz' caddy_bin='caddy'
@@ -115,16 +117,16 @@ Getcaddy(){
 		*DARWIN*) caddy_os='darwin'
 			local version=$(sw_vers) version=${version##*ProductVersion:} OSX_MAJOR OSX_MINOR
 			IFS='.' read OSX_MAJOR OSX_MINOR _ <<<"$version"
-			((OSX_MAJOR < 10)) && Exit "unsupported OS X version:$A 9-" 9
-			((OSX_MAJOR > 10)) && Exit "unsupported OS X version:$A 11+" 10
-			((OSX_MINOR < 5)) && Exit "unsupported OS X version:$A 10.5-" 11 ;;
+			((OSX_MAJOR < 10)) && Exit "unsupported OS X version:$A 9-" 10
+			((OSX_MAJOR > 10)) && Exit "unsupported OS X version:$A 11+" 11
+			((OSX_MINOR < 5)) && Exit "unsupported OS X version:$A 10.5-" 12 ;;
 		*LINUX*) caddy_os='linux' ;;
 		*FREEBSD*) caddy_os='freebsd' ;;
 		*OPENBSD*) caddy_os='openbsd' ;;
 		*NETBSD*) caddy_os='netbsd' ;;
 		*SOLARIS*) caddy_os='solaris' ;;
 		*WIN*|MSYS*) caddy_os='windows' ;;
-		*) Exit "unsupported or unknown os: $A$uname" 12 ;;
+		*) Exit "unsupported or unknown os: $A$uname" 13 ;;
 		esac
 	fi
 	[[ $caddy_os = darwin || $caddy_os = windows ]] && caddy_ext='.zip'
@@ -135,7 +137,8 @@ Getcaddy(){
 	then
 		local unamem=$(uname -m)
 		case $unamem in
-		*aarch64*|*64*|*arm64*) caddy_arch='arm64' ;;
+		*aarch64*) caddy_arch='arm64' ;;
+		*64*) caddy_arch='amd64' ;;
 		*86*) caddy_arch='386' ;;
 		*armv5*) caddy_arch='arm' caddy_arm=5 ;;
 		*armv6l*) caddy_arch='arm' caddy_arm=6 ;;
@@ -146,14 +149,14 @@ Getcaddy(){
 		*mips*) caddy_arch='mips' ;;
 		*ppc64le*) caddy_arch='ppc64le' ;;
 		*ppc64*) caddy_arch='ppc64' ;;
-		*) Exit "unsupported or unknown architecture: $A$unamem" 13 ;;
+		*) Exit "unsupported or unknown architecture: $A$unamem" 14 ;;
 		esac
 	fi
 
 	# Find the curl or wget binaries
 	local dl_cmd
 	! dl_cmd="$(type -P curl) -fsSL" && ! dl_cmd="$(type -P wget) -qO-" &&
-		Exit "could not find$A curl$E or$A wget" 14
+		Exit "could not find$A curl$E or$A wget" 15
 
 	# Find latest version
 	local url="https://caddyserver.com/api/download-page"
@@ -190,7 +193,7 @@ Getcaddy(){
 		local_version=$("$caddy_loc" -version) &&
 			local_version=${local_version#Caddy v} &&
 			local_version=${local_version%% *}
-		[[ -z $local_version ]] && Exit "error getting local caddy version" 15
+		[[ -z $local_version ]] && Exit "error getting local caddy version" 16
 
 		Info 1 "Local install of Caddy $A$local_version$X in $G$caddy_loc$X"
 	fi
@@ -198,7 +201,7 @@ Getcaddy(){
 	# Find supported os/arch
 	local os_archs=$(grep '{"GOOS":' <<<"$dl_info" |cut -d '"' -f4,8,12 |sed -e 's@"@/@' -e 's@"@@')
 	! grep -q ^$caddy_os/$caddy_arch$caddy_arm$ <<<"$os_archs" &&
-		Exit "unsupported os/arch: $A$E$caddy_os/$caddy_arch$caddy_arm$X" 16
+		Exit "unsupported os/arch: $A$E$caddy_os/$caddy_arch$caddy_arm$X" 17
 	n_os_archs=$(Count ${os_archs//$'\n'/,})
 	Info 0 "$A$n_os_archs$X supported OS/architectures:" $H$os_archs$X
 
@@ -263,7 +266,7 @@ Getcaddy(){
 	[[ -n "$ANDROID_ROOT" && -n "$PREFIX" ]] && tmp=$PREFIX/tmp || tmp=/tmp
 	if ((make))
 	then ## build locally
-		! type -p buildcaddy && Exit "Script 'buildcaddy' not in PATH" 17
+		! type -p buildcaddy && Exit "Script 'buildcaddy' not in PATH" 18
 		local p=,
 		[[ $installs ]] && p=${installs// /,}
 		CADDY_TELEMETRY=$telemetry buildcaddy $p $caddy_os $caddy_arch $caddy_arm
@@ -294,12 +297,12 @@ Getcaddy(){
 				Info 1 " Keyserver $keyserver not available"
 			done
 			((nokeyservers)) &&
-				Exit "No keyservers available or key $caddy_pgp invalid" 18
+				Exit "No keyservers available or key $caddy_pgp invalid" 19
 			#! gpg -q --batch --verify --no-default-keyring --keyring "$tmpkeyring" \
 			#		-- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
 			! gpg -q --batch --verify -- "$caddy_dl.asc" "$caddy_dl" &>/dev/null &&
 				rm -- "$caddy_dl.asc" "$tmpkeyring" &&
-				Exit "download verification failed, perhaps try again" 19
+				Exit "download verification failed, perhaps try again" 20
 			rm -- "$caddy_dl.asc"	"$tmpkeyring"
 			Info 1 " Downloaded file verified:$G OK$X"
 		else
@@ -320,7 +323,7 @@ Getcaddy(){
 	((EUID)) && [[ -z "$ANDROID_ROOT" ]] && sudo_cmd='sudo'
 	[[ $sudo_cmd ]] &&
 		Info 1 " Testing privileges for executing $E(needs privileges)$X" &&
-		! "$sudo_cmd" true && Exit "Needs root privileges" 20
+		! "$sudo_cmd" true && Exit "Needs root privileges" 21
 
 	# Back up file at install location
 	local caddy_backup
@@ -329,13 +332,13 @@ Getcaddy(){
 		caddy_backup="${caddy_loc}_$local_version"
 		Info 1 " Backing up $G$caddy_loc$X to $G$caddy_backup $E(needs privileges)$X"
 		"$sudo_cmd" cp -v --backup=numbered "$caddy_loc" "$caddy_backup" ||
-			Exit "Couldn't backup $G$caddy_loc$E to $G$caddy_backup" 21
+			Exit "Couldn't backup $G$caddy_loc$E to $G$caddy_backup" 22
 	fi
 
 	# Move the new binary in place
 	Info 1 " Putting caddy in $G$caddy_loc $E(needs privileges)$X"
 	"$sudo_cmd" mv "$tmp/$caddy_bin" "$caddy_loc" ||
-		Exit "Couldn't move $G$tmp/$caddy_bin$E to $A$caddy_loc" 22
+		Exit "Couldn't move $G$tmp/$caddy_bin$E to $A$caddy_loc" 23
 	[[ $caddy_backup ]] &&
 		Info 1 " Adjusting permissions on $G$caddy_loc $E(needs privileges)$X" &&
 		"$sudo_cmd" chown --reference="$caddy_backup" "$caddy_loc"
@@ -345,14 +348,14 @@ Getcaddy(){
 	then
 		Info 1 " Allowing lower port numbers through setcap $E(needs privileges)$X"
 		"$sudo_cmd" "$setcap_cmd" cap_net_bind_service=+ep "$caddy_loc" ||
-			Exit "Setcap command to allow lower port numbers to be used failed" 23
+			Exit "Setcap command to allow lower port numbers to be used failed" 24
 	fi
 
 	# Restarting Caddy
 	if ((!norun && caddy_pid))
 	then
 		Info 1 " Restarting Caddy $E(needs privileges)$X"
-		"$sudo_cmd" kill -USR2 $caddy_pid || Exit "Couldn't restart Caddy" 24
+		"$sudo_cmd" kill -USR2 $caddy_pid || Exit "Couldn't restart Caddy" 25
 	fi
 
 	# Check intallation if arch/os not set

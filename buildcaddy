@@ -59,5 +59,6 @@ EOF
 Build $os $arch $arm
 cd "$olddir"
 mv --backup=numbered "$dir/caddy" .
+echo "Built caddy for $os/$arch$arm with $plugins"
 
 exit 0
