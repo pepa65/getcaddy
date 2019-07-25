@@ -24,10 +24,10 @@ Plugins(){ # $1:plugins
 }
 
 Build(){ # $1:os $2:arch $3:arm
-	export O111MODULE=on
+	export GO111MODULE=on
 	go mod init caddy
+	env GOOS=$1 GOARCH=$2 GOARM=$3 go get github.com/caddyserver/caddy
 	env GOOS=$1 GOARCH=$2 GOARM=$3 go build
-	#env GOOS=$1 GOARCH=$2 go build
 }
 
 telemetry=true
@@ -46,7 +46,7 @@ cat <<-EOF >caddy.go
 	package main
 
 	import (
-	  "github.com/mholt/caddy/caddy/caddymain"
+	  "github.com/caddyserver/caddy/caddy/caddymain"
 	$(Plugins $plugins)
 	)
 
